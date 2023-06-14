@@ -1,3 +1,19 @@
+# Copyright 2023 DARWIN EU (C)
+#
+# This file is part of PatientProfiles
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 #' @noRd
 checkX <- function(x) {
   if (!isTRUE(inherits(x, "tbl_dbi"))) {
@@ -15,10 +31,10 @@ checkX <- function(x) {
       " or 'subject_id')"
     ))
   }
-  person_variable <- dplyr::if_else(
+  personVariable <- dplyr::if_else(
     "person_id" %in% colnames(x), "person_id", "subject_id"
   )
-  return(person_variable)
+  return(personVariable)
 }
 
 #' @noRd
@@ -52,7 +68,7 @@ checkVariableInX <- function(indexDate, x, nullOk = FALSE, name = "indexDate") {
 }
 
 #' @noRd
-checkCategory <- function(category) {
+checkCategory <- function(category, overlap = FALSE) {
   checkmate::assertList(
     category,
     types = "integerish", any.missing = FALSE, unique = TRUE,
@@ -101,25 +117,28 @@ checkCategory <- function(category) {
     dplyr::arrange(.data$lower_bound)
 
   # check overlap
-  if (nrow(result) > 1) {
-    lower <- result$lower_bound[2:nrow(result)]
-    upper <- result$upper_bound[1:(nrow(result) - 1)]
-    if (!all(lower > upper)) {
-      cli::cli_abort("There can not be overlap between categories")
+  if (!overlap) {
+    if (nrow(result) > 1) {
+      lower <- result$lower_bound[2:nrow(result)]
+      upper <- result$upper_bound[1:(nrow(result) - 1)]
+      if (!all(lower > upper)) {
+        cli::cli_abort("There can not be overlap between categories")
+      }
     }
   }
+
   return(result)
 }
 
 #' @noRd
-checkAgeGroup <- function(ageGroup) {
+checkAgeGroup <- function(ageGroup, overlap = FALSE) {
   checkmate::assertList(ageGroup, min.len = 1, null.ok = TRUE)
   if (!is.null(ageGroup)) {
     if (is.numeric(ageGroup[[1]])) {
       ageGroup <- list("age_group" = ageGroup)
     }
     for (k in seq_along(ageGroup)) {
-      invisible(checkCategory(ageGroup[[k]]))
+      invisible(checkCategory(ageGroup[[k]], overlap))
     }
     if (is.null(names(ageGroup))) {
       names(ageGroup) <- paste0("age_group_", 1:length(ageGroup))
@@ -344,12 +363,167 @@ checkCohortNames <- function(x, targetCohortId, name) {
 
 #' @noRd
 checkSnakeCase <- function(name) {
- for(n in name) {
-   n <- gsub("[a-z]","",n)
-   n <- gsub("[0-9]","",n)
-   n <- gsub("_","",n)
-   if(nchar(n) > 0) {
-     cli::cli_abort(paste0(deparse(substitute(name)), " is not written in snake case, please check characters: ",gsub(""," ",n)))
-   }
- }
+  wrong <- FALSE
+  for (i in seq_along(name)) {
+    n <- name[i]
+    n <- gsub("[a-z]", "", n)
+    n <- gsub("[0-9]", "", n)
+    n <- gsub("_", "", n)
+    if (nchar(n) > 0) {
+      oldname <- name[i]
+      name[i] <- gsub("([[:upper:]])", "\\L\\1", perl = TRUE, name[i])
+      name[i] <- gsub("[^a-z,0-9.-]", "_", name[i])
+      name[i] <- gsub("-", "_", name[i])
+      cli::cli_alert(paste0(oldname, " has been changed to ", name[i]))
+      wrong <- TRUE
+    }
+  }
+  if (wrong) {
+    cli::cli_alert("some provided names were not in snake_case")
+    cli::cli_alert("names have been changed to lower case")
+    cli::cli_alert("special symbols in names have been changed to '_'")
+  }
+  return(name)
+}
+
+#' @noRd
+checkVariableType <- function(variableType) {
+  errorMessage <- "variableType must be a choice between numeric, date, binary and categorical."
+  if (!is.character(variableType) |
+    length(variableType) != 1) {
+    cli::cli_abort(errorMessage)
+  }
+  if (!(variableType %in% c("numeric", "date", "binary", "categorical"))) {
+    cli::cli_abort(errorMessage)
+  }
+}
+
+#' @noRd
+checkExclude <- function(exclude) {
+  if (!is.null(exclude) & !is.character(exclude)) {
+    cli::cli_abort("eclude must a character vector or NULL")
+  }
+}
+
+#' @noRd
+checkTable <- function(table) {
+  if (!("tbl" %in% class(table))) {
+    cli::cli_abort("table should be a tibble")
+  }
+}
+
+#' @noRd
+checkStrata <- function(strata, table) {
+  errorMessage <- "strata should be a unique named list that point to columns in table"
+  if (!is.list(strata)) {
+    cli::cli_abort(errorMessage)
+  }
+  if (length(names(strata)) != length(strata)) {
+    cli::cli_abort(errorMessage)
+  }
+  if (length(strata) > 0) {
+    if (!is.character(unlist(strata))) {
+      cli::cli_abort(errorMessage)
+    }
+    if (!all(unlist(strata) %in% colnames(table))) {
+      cli::cli_abort(errorMessage)
+    }
+  }
+}
+
+#' @noRd
+checkVariablesFunctions <- function(variables, functions, table) {
+  errorMessage <- "variables should be a unique named list that point to columns in table"
+  if (!is.list(variables)) {
+    cli::cli_abort(errorMessage)
+  }
+  if (length(names(variables)) != length(variables)) {
+    cli::cli_abort(errorMessage)
+  }
+  if (!is.character(unlist(variables))) {
+    cli::cli_abort(errorMessage)
+  }
+  if (!all(unlist(variables) %in% colnames(table))) {
+    cli::cli_abort(errorMessage)
+  }
+  errorMessage <- "functions should be a unique named list that point to functions. Check suported functions using availableFunctions()."
+  if (!is.list(functions)) {
+    cli::cli_abort(errorMessage)
+  }
+  if (length(names(functions)) != length(functions)) {
+    cli::cli_abort(errorMessage)
+  }
+  if (!is.character(unlist(functions))) {
+    cli::cli_abort(errorMessage)
+  }
+  if (!all(unlist(functions) %in% unique(formats$format_key))) {
+    cli::cli_abort(errorMessage)
+  }
+  if (!identical(sort(names(variables)), sort(names(functions)))) {
+    cli::cli_abort("Names from variables and functions must be the same")
+  }
+  vt <- variableTypes(table)
+  requiredFunctions <- NULL
+  for (nam in names(variables)) {
+    requiredFunctions <- requiredFunctions %>%
+      dplyr::union_all(
+        tidyr::expand_grid(
+          variable = variables[[nam]],
+          format_key = functions[[nam]]
+        )
+      )
+  }
+  suportedFunctions <- vt %>%
+    dplyr::select("variable", "variable_type") %>%
+    dplyr::left_join(
+      formats %>%
+        dplyr::select("variable_type", "format_key"),
+      by = "variable_type"
+    )
+  nonSuportedFunctions <- requiredFunctions %>%
+    dplyr::anti_join(suportedFunctions, by = c("variable", "format_key"))
+  if (nrow(nonSuportedFunctions) > 0) {
+    nonSuportedFunctions <- nonSuportedFunctions %>%
+      dplyr::left_join(vt, by = "variable")
+    errorMessage <- "Non supported functions found."
+    vars <- unique(nonSuportedFunctions$variable)
+    for (v in vars) {
+      errorMessage <- paste0(
+        errorMessage, " '", v, "' is `",
+        vt$variable_type[vt$variable == v], "` and formats: ",
+        paste0(
+          nonSuportedFunctions$format_key[nonSuportedFunctions$variable == v],
+          collapse = ", "
+        ),
+        " are not suported."
+      )
+    }
+    cli::cli_abort(errorMessage)
+  }
+}
+
+#' @noRd
+checkSuppressCellCount <- function(suppressCellCount) {
+  checkmate::assertIntegerish(
+    suppressCellCount,
+    lower = 0, len = 1, any.missing = F
+  )
+}
+
+#' @noRd
+checkBigMark <- function(bigMark) {
+  checkmate::checkCharacter(bigMark, min.chars = 0, len = 1, any.missing = F)
+}
+
+#' @noRd
+checkDecimalMark <- function(decimalMark) {
+  checkmate::checkCharacter(decimalMark, min.chars = 1, len = 1, any.missing = F)
+}
+
+#' @noRd
+checkSignificantDecimals <- function(significantDecimals) {
+  checkmate::assertIntegerish(
+    significantDecimals,
+    lower = 0, len = 1, any.missing = F
+  )
 }

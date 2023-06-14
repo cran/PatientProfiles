@@ -5,6 +5,8 @@
 \title{It creates a mock database for testing PatientProfiles package}
 \usage{
 mockPatientProfiles(
+  connectionDetails = list(con = DBI::dbConnect(duckdb::duckdb(), ":memory:"),
+    write_schema = "main", mock_prefix = NULL),
   drug_exposure = NULL,
   drug_strength = NULL,
   observation_period = NULL,
@@ -43,6 +45,8 @@ mockPatientProfiles(
 )
 }
 \arguments{
+\item{connectionDetails}{Connection an details to create the cdm mock object}
+
 \item{drug_exposure}{default null user can define its own table}
 
 \item{drug_strength}{default null user can define its own table}

@@ -1,3 +1,19 @@
+# Copyright 2023 DARWIN EU (C)
+#
+# This file is part of PatientProfiles
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 #' Compute the intersect with a target cohort, you can compute the number of
 #' occurrences, a flag of presence, a certain date and/or the time difference
 #'
@@ -384,12 +400,12 @@ addCohortIntersectCount <- function(x,
 #' @param x Table with individuals in the cdm
 #' @param cdm Object that contains a cdm reference. Use CDMConnector to obtain a
 #' cdm reference.
-#' @param indexDate Variable in x that contains the date to compute the
-#' intersection.
 #' @param targetCohortTable Cohort table to
 #' @param targetCohortId Cohort IDs of interest from the other cohort table. If
 #' NULL, all cohorts will be used with a days variable added for each
 #' cohort of interest
+#' @param indexDate Variable in x that contains the date to compute the
+#' intersection.
 #' @param targetDate Date of interest in the other cohort table. Either
 #' cohort_start_date or cohort_end_date
 #' @param order date to use if there are multiple records for an
@@ -471,9 +487,9 @@ addCohortIntersectCount <- function(x,
 #'
 addCohortIntersectDays <- function(x,
                                    cdm,
-                                   indexDate = "cohort_start_date",
                                    targetCohortTable,
                                    targetCohortId = NULL,
+                                   indexDate = "cohort_start_date",
                                    targetDate = "cohort_start_date",
                                    order = "first",
                                    window = c(0, Inf),
@@ -510,12 +526,12 @@ addCohortIntersectDays <- function(x,
 #' @param x Table with individuals in the cdm
 #' @param cdm Object that contains a cdm reference. Use CDMConnector to obtain a
 #' cdm reference.
-#' @param indexDate Variable in x that contains the date to compute the
-#' intersection.
 #' @param targetCohortTable Cohort table to
 #' @param targetCohortId Cohort IDs of interest from the other cohort table. If
 #' NULL, all cohorts will be used with a time variable added for each
 #' cohort of interest
+#' @param indexDate Variable in x that contains the date to compute the
+#' intersection.
 #' @param targetDate Date of interest in the other cohort table. Either
 #' cohort_start_date or cohort_end_date
 #' @param order date to use if there are multiple records for an
@@ -597,9 +613,9 @@ addCohortIntersectDays <- function(x,
 #'
 addCohortIntersectDate <- function(x,
                                    cdm,
-                                   indexDate = "cohort_start_date",
                                    targetCohortTable,
                                    targetCohortId = NULL,
+                                   indexDate = "cohort_start_date",
                                    targetDate = "cohort_start_date",
                                    order = "first",
                                    window = c(0, Inf),

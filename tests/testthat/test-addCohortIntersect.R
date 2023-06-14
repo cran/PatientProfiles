@@ -1,8 +1,9 @@
 test_that("output format - one outcome cohort", {
+  # output format - one outcome cohort ----
   # additional column should be added
   # with the name as specified
 
-  cdm <- mockPatientProfiles()
+  cdm <- mockPatientProfiles(connectionDetails)
 
   cdm$cohort1a <- cdm$cohort1 %>%
     addCohortIntersectDays(
@@ -22,15 +23,9 @@ test_that("output format - one outcome cohort", {
     )
   expect_true(ncol(cdm$cohort1b) == 5)
 
-
-  DBI::dbDisconnect(attr(cdm, "dbcon"), shutdown = TRUE)
-})
-
-test_that("output format - multiple outcome cohorts", {
+  # output format - multiple outcome cohorts ----
   # additional columns (one per outcome cohort) should be added
   # with the name as specified
-
-  cdm <- mockPatientProfiles()
 
   # In 0 to Inf - 2 target cohorts have someone
   cdm$cohort1a <- cdm$cohort1 %>%
@@ -71,15 +66,13 @@ test_that("output format - multiple outcome cohorts", {
       targetCohortTable = "cohort2"
     )
   expect_true(ncol(cdm$cohort1d) == 7)
-
-  DBI::dbDisconnect(attr(cdm, "dbcon"), shutdown = TRUE)
 })
 
 test_that("first vs last event - cohort table", {
   # depending on user choice, should get back either the
   # first or last outcome record
 
-  cohort1 <- tibble::tibble(
+  cohort1 <- dplyr::tibble(
     cohort_definition_id = 1,
     subject_id = c("1", "2"),
     cohort_start_date = c(
@@ -92,7 +85,7 @@ test_that("first vs last event - cohort table", {
     )
   )
 
-  cohort2 <- tibble::tibble(
+  cohort2 <- dplyr::tibble(
     cohort_definition_id = 1,
     subject_id = c("1", "1", "1", "2"),
     cohort_start_date = c(
@@ -110,6 +103,7 @@ test_that("first vs last event - cohort table", {
   )
 
   cdm <- mockPatientProfiles(
+    connectionDetails,
     cohort1 = cohort1,
     cohort2 = cohort2
   )
@@ -147,11 +141,11 @@ test_that("first vs last event - cohort table", {
       order = "first"
     )
   expect_true(cdm$cohort1b %>%
-                dplyr::filter(subject_id == 1) %>%
-                dplyr::pull(5) == as.Date("2010-03-03"))
+    dplyr::filter(subject_id == 1) %>%
+    dplyr::pull(5) == as.Date("2010-03-03"))
   expect_true(cdm$cohort1b %>%
-                dplyr::filter(subject_id == 2) %>%
-                dplyr::pull(5) == as.Date("2013-01-03"))
+    dplyr::filter(subject_id == 2) %>%
+    dplyr::pull(5) == as.Date("2013-01-03"))
 
 
   # last
@@ -187,21 +181,19 @@ test_that("first vs last event - cohort table", {
       order = "last"
     )
   expect_true(cdm$cohort1d %>%
-                dplyr::filter(subject_id == 1) %>%
-                dplyr::pull(5) ==
-                as.Date("2010-03-25"))
+    dplyr::filter(subject_id == 1) %>%
+    dplyr::pull(5) ==
+    as.Date("2010-03-25"))
   expect_true(cdm$cohort1d %>%
-                dplyr::filter(subject_id == 2) %>%
-                dplyr::pull(5) == as.Date("2013-01-03"))
-
-  DBI::dbDisconnect(attr(cdm, "dbcon"), shutdown = TRUE)
+    dplyr::filter(subject_id == 2) %>%
+    dplyr::pull(5) == as.Date("2013-01-03"))
 })
 
 test_that("multiple cohort entries per person", {
   # in the presence of multiple cohort entries in the index cohort
   # each record should be treated independently
 
-  cohort1 <- tibble::tibble(
+  cohort1 <- dplyr::tibble(
     cohort_definition_id = 1,
     subject_id = c("1", "1", "2"),
     cohort_start_date = c(
@@ -216,7 +208,7 @@ test_that("multiple cohort entries per person", {
     )
   )
 
-  cohort2 <- tibble::tibble(
+  cohort2 <- dplyr::tibble(
     cohort_definition_id = 1,
     subject_id = c("1", "1", "1", "2"),
     cohort_start_date = c(
@@ -234,6 +226,7 @@ test_that("multiple cohort entries per person", {
   )
 
   cdm <- mockPatientProfiles(
+    connectionDetails,
     cohort1 = cohort1,
     cohort2 = cohort2
   )
@@ -278,121 +271,126 @@ test_that("multiple cohort entries per person", {
     )
 
   expect_true(all(cdm$cohort1b %>%
-                    dplyr::filter(subject_id == 1) %>%
-                    dplyr::arrange(cohort_start_date) %>%
-                    dplyr::pull(5) ==
-                    c(as.Date("2010-03-03"),
-                      as.Date("2012-03-25")
-                    )))
+    dplyr::filter(subject_id == 1) %>%
+    dplyr::arrange(cohort_start_date) %>%
+    dplyr::pull(5) ==
+    c(
+      as.Date("2010-03-03"),
+      as.Date("2012-03-25")
+    )))
 
   expect_equal(
     cdm$cohort1 %>% dplyr::tally() %>% dplyr::pull("n"),
     cdm$cohort1b %>% dplyr::tally() %>% dplyr::pull("n")
   )
-
-  DBI::dbDisconnect(attr(cdm, "dbcon"), shutdown = TRUE)
 })
 
 test_that("output names", {
   # additional column should be added
   # with the name as specified
 
-  cdm <- mockPatientProfiles()
+  cdm <- mockPatientProfiles(connectionDetails)
 
   # default naming
   cdm$cohort1a <- cdm$cohort1 %>%
     addCohortIntersectDays(
       cdm = cdm,
-      window = c(10,50),
+      window = c(10, 50),
       targetCohortId = NULL,
       targetDate = "cohort_start_date",
       targetCohortTable = "cohort2"
     )
-  expect_true(all(c("cohort_1_10_to_50",
-                    "cohort_2_10_to_50",
-                    "cohort_3_10_to_50") %in%
+  expect_true(all(c(
+    "cohort_1_10_to_50",
+    "cohort_2_10_to_50",
+    "cohort_3_10_to_50"
+  ) %in%
     colnames(cdm$cohort1a)))
 
   cdm$cohort1b <- cdm$cohort1 %>%
     addCohortIntersectDate(
       cdm = cdm,
-      window = c(10,50),
+      window = c(10, 50),
       targetCohortId = NULL,
       targetDate = "cohort_start_date",
       targetCohortTable = "cohort2"
     ) # id_name won't be clear to the user
-  expect_true(all(c("cohort_1_10_to_50",
-                    "cohort_2_10_to_50",
-                    "cohort_3_10_to_50") %in%
-                    colnames(cdm$cohort1b)))
+  expect_true(all(c(
+    "cohort_1_10_to_50",
+    "cohort_2_10_to_50",
+    "cohort_3_10_to_50"
+  ) %in%
+    colnames(cdm$cohort1b)))
 
   # new names
   cdm$cohort1c <- cdm$cohort1 %>%
     addCohortIntersectDays(
       cdm = cdm,
-      window = c(10,50),
+      window = c(10, 50),
       targetCohortId = NULL,
       targetDate = "cohort_start_date",
       targetCohortTable = "cohort2",
       nameStyle = "study_{cohort_name}"
     )
-  expect_true(all(c("study_cohort_1",
-                    "study_cohort_2",
-                    "study_cohort_3") %in%
-                    colnames(cdm$cohort1c)))
+  expect_true(all(c(
+    "study_cohort_1",
+    "study_cohort_2",
+    "study_cohort_3"
+  ) %in%
+    colnames(cdm$cohort1c)))
 
   # new names
   cdm$cohort1d <- cdm$cohort1 %>%
     addCohortIntersectDate(
       cdm = cdm,
-      window = c(10,50),
+      window = c(10, 50),
       targetCohortId = NULL,
       targetDate = "cohort_start_date",
       targetCohortTable = "cohort2",
       nameStyle = "study_{cohort_name}"
     )
-  expect_true(all(c("study_cohort_1",
-                    "study_cohort_2",
-                    "study_cohort_3") %in%
-                    colnames(cdm$cohort1c)))
-
-  DBI::dbDisconnect(attr(cdm, "dbcon"), shutdown = TRUE)
+  expect_true(all(c(
+    "study_cohort_1",
+    "study_cohort_2",
+    "study_cohort_3"
+  ) %in%
+    colnames(cdm$cohort1c)))
 })
 
 test_that("expected errors ", {
-  cdm <- mockPatientProfiles()
+  cdm <- mockPatientProfiles(connectionDetails)
 
   # not a cdm
   expect_error(cdm$cohort1 %>%
-                 addCohortIntersectDays(
+    addCohortIntersectDays(
       cdm = "a",
       targetCohortId = 1,
       indexDate = "cohort_start_date",
       targetCohortTable = "cohort2"
     ))
   expect_error(cdm$cohort1 %>%
-                 addCohortIntersectDate(
-                   cdm = "a",
-                   targetCohortId = 1,
-                   indexDate = "cohort_start_date",
-                   targetCohortTable = "cohort2"
-                 ))
+    addCohortIntersectDate(
+      cdm = "a",
+      targetCohortId = 1,
+      indexDate = "cohort_start_date",
+      targetCohortTable = "cohort2"
+    ))
 
   # missing outcome table
   expect_error(cdm$cohort1 %>%
-                 addCohortIntersectDays(
+    addCohortIntersectDays(
       cdm = cdm,
       targetCohortId = 1,
       indexDate = "cohort_start_date",
       targetCohortTable = "table_x"
     ))
   expect_error(cdm$cohort1 %>%
-                 addCohortIntersectDate(
-                   cdm = cdm,
-                   targetCohortId = 1,
-                   indexDate = "cohort_start_date",
-                   targetCohortTable = "table_x"
-                 ))
+    addCohortIntersectDate(
+      cdm = cdm,
+      targetCohortId = 1,
+      indexDate = "cohort_start_date",
+      targetCohortTable = "table_x"
+    ))
 
   # unreasonable window
   # expect_error(cdm$cohort1 %>%
@@ -401,14 +399,9 @@ test_that("expected errors ", {
   #                            indexDate = "cohort_start_date",
   #                            targetCohortTable = "cohort2",
   #                            window = c(300, 100)))
-
-
-
-  DBI::dbDisconnect(attr(cdm, "dbcon"), shutdown = TRUE)
 })
 
 test_that("working examples", {
-
   # functionality
   cohort1 <- dplyr::tibble(
     cohort_definition_id = c(1, 1, 1, 1, 1),
@@ -460,7 +453,7 @@ test_that("working examples", {
     ),
   )
 
-  cdm <- mockPatientProfiles(cohort1 = cohort1, cohort2 = cohort2)
+  cdm <- mockPatientProfiles(connectionDetails, cohort1 = cohort1, cohort2 = cohort2)
 
   result0 <- cdm$cohort1 %>%
     addCohortIntersectCount(cdm = cdm, targetCohortTable = "cohort2") %>%
@@ -483,7 +476,7 @@ test_that("working examples", {
   expect_true(all(result0$cohort_2_0_to_inf == result2$cohort_2_0_to_inf))
   expect_true(all(result0$cohort_3_0_to_inf == result3$cohort_3_0_to_inf))
 
-  result_1 <- cdm$cohort1 %>%
+  result1 <- cdm$cohort1 %>%
     addCohortIntersectCount(
       cdm = cdm, targetCohortTable = "cohort2", targetCohortId = c(2, 3),
       window = list(c(-Inf, 0))
@@ -491,14 +484,14 @@ test_that("working examples", {
     dplyr::arrange(subject_id, cohort_start_date) %>%
     dplyr::collect()
 
-  expect_true(all(result_1$cohort_2_minf_to_0 == c(0, 0, 0, 0, 1)))
-  expect_true(all(result_1$cohort_3_minf_to_0 == c(0, 0, 0, 0, 1)))
+  expect_true(all(result1$cohort_2_minf_to_0 == c(0, 0, 0, 0, 1)))
+  expect_true(all(result1$cohort_3_minf_to_0 == c(0, 0, 0, 0, 1)))
 
   attr(cdm$cohort2, "cohort_set") <- dplyr::tibble(
     cohort_definition_id = c(1, 2, 3),
     cohort_name = c("asthma", "covid", "tb")
   )
-  result_2 <- cdm$cohort1 %>%
+  result2 <- cdm$cohort1 %>%
     addCohortIntersectCount(
       cdm = cdm, targetCohortTable = "cohort2", targetCohortId = c(2, 3),
       window = list(c(-Inf, 0))
@@ -506,14 +499,11 @@ test_that("working examples", {
     dplyr::arrange(subject_id, cohort_start_date) %>%
     dplyr::collect()
 
-  expect_true(all(result_2$covid_minf_to_0 == c(0, 0, 0, 0, 1)))
-  expect_true(all(result_2$tb_minf_to_0 == c(0, 0, 0, 0, 1)))
-
-  DBI::dbDisconnect(attr(cdm, "dbcon"), shutdown = TRUE)
+  expect_true(all(result2$covid_minf_to_0 == c(0, 0, 0, 0, 1)))
+  expect_true(all(result2$tb_minf_to_0 == c(0, 0, 0, 0, 1)))
 })
 
 test_that("working examples", {
-
   # functionality
   cohort1 <- dplyr::tibble(
     cohort_definition_id = c(1, 1, 1, 1, 1),
@@ -565,7 +555,7 @@ test_that("working examples", {
     ),
   )
 
-  cdm <- mockPatientProfiles(cohort1 = cohort1, cohort2 = cohort2)
+  cdm <- mockPatientProfiles(connectionDetails, cohort1 = cohort1, cohort2 = cohort2)
 
   result0 <- cdm$cohort1 %>%
     addCohortIntersectFlag(cdm = cdm, targetCohortTable = "cohort2") %>%
@@ -588,18 +578,15 @@ test_that("working examples", {
   expect_true(all(result0$cohort_2_0_to_inf == result2$cohort_2_0_to_inf))
   expect_true(all(result0$cohort_3_0_to_inf == result3$cohort_3_0_to_inf))
 
-  result_1 <- cdm$cohort1 %>%
+  result1 <- cdm$cohort1 %>%
     addCohortIntersectFlag(cdm = cdm, targetCohortTable = "cohort2", targetCohortId = 2) %>%
     dplyr::arrange(subject_id, cohort_start_date) %>%
     dplyr::collect()
 
-  expect_true(all(result_1$cohort_2_0_to_inf == c(1, 1, 1, 1, 0)))
-
-  DBI::dbDisconnect(attr(cdm, "dbcon"), shutdown = TRUE)
+  expect_true(all(result1$cohort_2_0_to_inf == c(1, 1, 1, 1, 0)))
 })
 
 test_that("working examples", {
-
   # functionality
   cohort1 <- dplyr::tibble(
     cohort_definition_id = c(1, 1, 1, 1, 1),
@@ -651,7 +638,7 @@ test_that("working examples", {
     ),
   )
 
-  cdm <- mockPatientProfiles(cohort1 = cohort1, cohort2 = cohort2)
+  cdm <- mockPatientProfiles(connectionDetails, cohort1 = cohort1, cohort2 = cohort2)
 
   result1 <- cdm$cohort1 %>%
     addCohortIntersect(cdm = cdm, targetCohortTable = "cohort2") %>%
@@ -673,6 +660,4 @@ test_that("working examples", {
     y <- y[!is.na(y)]
     expect_true(all(x == y))
   }
-
-  DBI::dbDisconnect(attr(cdm, "dbcon"), shutdown = TRUE)
 })

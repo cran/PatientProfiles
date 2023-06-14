@@ -5,43 +5,41 @@
 #  # The input arguments provided are for illustrative purposes only and do not provide access to any database.
 #  
 #  con <- DBI::dbConnect(RPostgres::Postgres(),
-#                        dbname = "omop_cdm",
-#                        host = "10.80.192.00",
-#                        user = "user_name",
-#                        password = "user_pasword"
+#    dbname = "omop_cdm",
+#    host = "10.80.192.00",
+#    user = "user_name",
+#    password = "user_pasword"
 #  )
 #  
 #  cdm <- CDMConnector::cdm_from_con(con,
-#                                    cdm_schema = "main",
-#                                    write_schema = "main",
-#                                    cohort_tables = "cohort_example"
+#    cdm_schema = "main",
+#    write_schema = "main",
+#    cohort_tables = "cohort_example"
 #  )
 
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 library(PatientProfiles)
 library(duckdb)
-library(tibble)
 library(dplyr)
 
 cdm <- mockPatientProfiles(
-  patient_size = 1000, 
+  patient_size = 1000,
   drug_exposure_size = 1000
 )
-                          
 
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$cohort1 %>%
   glimpse()
 
 cdm$cohort2 %>%
-  glimpse()                       
+  glimpse()
 
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$cohort1WashOut <- cdm$cohort1 %>%
   addCohortIntersectFlag(
     cdm = cdm,
     targetCohortTable = "cohort2",
-    window = list(c(-180,-1)),
+    window = list(c(-180, -1)),
     targetCohortId = 1,
   ) %>%
   filter(cohort_1_m180_to_m1 == 0)
@@ -51,9 +49,10 @@ cdm$cohort1WashOut %>%
 
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$cohort1StrokeCounts <- cdm$cohort1 %>%
-  addCohortIntersectCount(cdm = cdm,
+  addCohortIntersectCount(
+    cdm = cdm,
     targetCohortTable = "cohort2",
-    window = list(c(-Inf,-366), c(-365,-181), c(-180,-1)),
+    window = list(c(-Inf, -366), c(-365, -181), c(-180, -1)),
     targetCohortId = 1
   )
 
@@ -63,57 +62,56 @@ cdm$cohort1StrokeCounts %>%
 ## -----------------------------------------------------------------------------
 
 # This will be our "main" cohort
-  cohort1 <- tibble::tibble(
-    cohort_definition_id = 1,
-    subject_id = c("1", "2"),
-    cohort_start_date = c(
-      as.Date("2010-03-01"),
-      as.Date("2012-03-01")
-    ),
-    cohort_end_date = c(
-      as.Date("2015-01-01"),
-      as.Date("2016-03-01")
-    )
+cohort1 <- dplyr::tibble(
+  cohort_definition_id = 1,
+  subject_id = c("1", "2"),
+  cohort_start_date = c(
+    as.Date("2010-03-01"),
+    as.Date("2012-03-01")
+  ),
+  cohort_end_date = c(
+    as.Date("2015-01-01"),
+    as.Date("2016-03-01")
   )
+)
 
 # This is the cohort with the events we are interested in
-  cohort2 <- tibble::tibble(
-    cohort_definition_id = 1,
-    subject_id = c("1", "1", "1", "2"),
-    cohort_start_date = c(
-      as.Date("2010-03-03"),
-      as.Date("2010-02-27"),
-      as.Date("2010-01-25"),
-      as.Date("2013-01-03")
-    ),
-    cohort_end_date = c(
-      as.Date("2010-03-03"),
-      as.Date("2010-02-27"),
-      as.Date("2012-03-25"),
-      as.Date("2013-01-03")
-    )
+cohort2 <- dplyr::tibble(
+  cohort_definition_id = 1,
+  subject_id = c("1", "1", "1", "2"),
+  cohort_start_date = c(
+    as.Date("2010-03-03"),
+    as.Date("2010-02-27"),
+    as.Date("2010-01-25"),
+    as.Date("2013-01-03")
+  ),
+  cohort_end_date = c(
+    as.Date("2010-03-03"),
+    as.Date("2010-02-27"),
+    as.Date("2012-03-25"),
+    as.Date("2013-01-03")
   )
+)
 
-  cdm <- mockPatientProfiles(
-    cohort1 = cohort1,
-    cohort2 = cohort2
-  )
-  
-  cdm$cohort1 <- cdm$cohort1 %>% addCohortIntersectCount(cdm, targetCohortTable = "cohort2", window = list(c(-30,-1)))
-  cdm$cohort1
+cdm <- mockPatientProfiles(
+  cohort1 = cohort1,
+  cohort2 = cohort2
+)
 
+cdm$cohort1 <- cdm$cohort1 %>% addCohortIntersectCount(cdm, targetCohortTable = "cohort2", window = list(c(-30, -1)))
+cdm$cohort1
 
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
-  cdm$cohort1 <- cdm$cohort1 %>% addCohortIntersectCount(cdm, targetCohortTable = "cohort2", window = list(c(-30,-1)), targetEndDate = "cohort_start_date")
-  cdm$cohort1
-                          
+cdm$cohort1 <- cdm$cohort1 %>% addCohortIntersectCount(cdm, targetCohortTable = "cohort2", window = list(c(-30, -1)), targetEndDate = "cohort_start_date")
+cdm$cohort1
 
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$cohort1TimeTo <- cdm$cohort1 %>%
-  addCohortIntersectDays(cdm = cdm,
+  addCohortIntersectDays(
+    cdm = cdm,
     targetCohortTable = "cohort2",
     targetCohortId = 1,
-    order = "first",
+    order = "first"
   )
 
 cdm$cohort1TimeTo %>%
@@ -121,11 +119,12 @@ cdm$cohort1TimeTo %>%
 
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$cohort1NextEvent <- cdm$cohort1 %>%
-  addCohortIntersectDate(cdm = cdm,
+  addCohortIntersectDate(
+    cdm = cdm,
     targetCohortTable = "cohort2",
     order = "first",
     targetCohortId = 1,
-    window = c(1,Inf)
+    window = c(1, Inf)
   )
 
 cdm$cohort1NextEvent %>%
@@ -133,22 +132,24 @@ cdm$cohort1NextEvent %>%
 
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$cohort1CohortIntersect <- cdm$cohort1 %>%
-  addCohortIntersect(cdm = cdm,
+  addCohortIntersect(
+    cdm = cdm,
     targetCohortTable = "cohort2",
     order = "first",
     targetCohortId = 1,
-    window = c(1,Inf)
+    window = c(1, Inf)
   )
 cdm$cohort1CohortIntersect %>%
   glimpse()
 
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$cohort1CohortIntersect <- cdm$cohort1 %>%
-  addCohortIntersect(cdm = cdm,
+  addCohortIntersect(
+    cdm = cdm,
     targetCohortTable = "cohort2",
     order = "first",
     targetCohortId = 1,
-    window = c(1,Inf),
+    window = c(1, Inf),
     flag = TRUE,
     count = TRUE,
     date = FALSE,
