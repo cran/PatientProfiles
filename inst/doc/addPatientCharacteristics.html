@@ -11,7 +11,7 @@
 
 <meta name="author" content="Martí Català, Mike Du, Yuchen Guo, Kim López-Güell, Xintong Li, Núria Mercadé-Besora, and Edward Burn" />
 
-<meta name="date" content="2023-06-14" />
+<meta name="date" content="2023-07-18" />
 
 <title>Get patients’ characteristics</title>
 
@@ -359,7 +359,7 @@ display: none;
 <h1 class="title toc-ignore">Get patients’ characteristics</h1>
 <h4 class="author">Martí Català, Mike Du, Yuchen Guo, Kim López-Güell,
 Xintong Li, Núria Mercadé-Besora, and Edward Burn</h4>
-<h4 class="date">2023-06-14</h4>
+<h4 class="date">2023-07-18</h4>
 
 </div>
 
@@ -438,7 +438,6 @@ patients in 20-year age band and if they are 60 years old or more.</p>
 ## $ condition_end_date      &lt;date&gt; 2006-06-14, 2007-06-05, 2011-06-24, 2009-01-0…</code></pre>
 <pre class="r"><code>cdm$condition_occurrence_mod &lt;- cdm$condition_occurrence %&gt;%
   addAge(
-    cdm = cdm,
     ageDefaultMonth = 1,
     ageDefaultDay = 6,
     indexDate = &quot;condition_start_date&quot;,
@@ -481,9 +480,7 @@ condition_concept_id = 5 in males aged 60 years or older. We can also
 stratify the number of events by age, grouping patients into 20-year age
 bands.</p>
 <pre class="r"><code>cdm$condition_occurrence_mod &lt;- cdm$condition_occurrence_mod %&gt;%
-  addSex(
-    cdm = cdm
-  )
+  addSex()
 
 cdm$condition_occurrence_mod %&gt;%
   glimpse()</code></pre>
@@ -533,9 +530,9 @@ functionalities applied to a cohort table:</p>
 <p><code>addInObservation()</code>: adds a new binary column to the
 input table, indicating whether the subjects are being observed at a
 specific time.</p>
-<p><code>addPriorHistory()</code>: appends a column to the input table
-containing the number of days each patient has been in observation up to
-a specified date.</p>
+<p><code>addPriorObservation()</code>: appends a column to the input
+table containing the number of days each patient has been in observation
+up to a specified date.</p>
 <p><code>addFutureObservation()</code>: adds a column with the days of
 future observation for an individual at a certain date</p>
 <p>We can use the first function to obtain patients which are in
@@ -552,18 +549,12 @@ future observation days. Notice that we are not using the argument
 ## $ cohort_start_date    &lt;date&gt; 2020-01-01, 2020-06-01, 2020-01-02, 2020-01-01
 ## $ cohort_end_date      &lt;date&gt; 2020-04-01, 2020-08-01, 2020-02-02, 2020-03-01</code></pre>
 <pre class="r"><code>cdm$cohort1 &lt;- cdm$cohort1 %&gt;%
-  addInObservation(
-    cdm = cdm
-  ) %&gt;%
+  addInObservation() %&gt;%
   filter(
     in_observation == 1
   ) %&gt;%
-  addPriorHistory(
-    cdm = cdm
-  ) %&gt;%
-  addFutureObservation(
-    cdm = cdm
-  )
+  addPriorObservation() %&gt;%
+  addFutureObservation()
 
 cdm$cohort1 %&gt;%
   glimpse()</code></pre>
@@ -575,13 +566,14 @@ cdm$cohort1 %&gt;%
 ## $ cohort_start_date    &lt;date&gt; 2020-01-01, 2020-06-01, 2020-01-02, 2020-01-01
 ## $ cohort_end_date      &lt;date&gt; 2020-03-01, 2020-08-01, 2020-02-02, 2020-04-01
 ## $ in_observation       &lt;dbl&gt; 1, 1, 1, 1
-## $ prior_history        &lt;dbl&gt; 4635, 5350, 4168, 5198
+## $ prior_observation    &lt;dbl&gt; 4635, 5350, 4168, 5198
 ## $ future_observation   &lt;dbl&gt; 36925, 18232, 17348, 18384</code></pre>
 <p>If the database allows for multiple observation periods, it’s
 important to note that the results of the previous functions will be
 based on the period where “indexDate” falls within. If a patient is not
-under observation at the specified date, <code>addPriorHistory()</code>
-and <code>addFutureObservation()</code> functions will return NA.</p>
+under observation at the specified date,
+<code>addPriorObservation()</code> and
+<code>addFutureObservation()</code> functions will return NA.</p>
 </div>
 <div id="example-get-all-characteristics-at-once" class="section level2" number="1.4">
 <h2><span class="header-section-number">1.4</span> Example: get all
@@ -603,14 +595,13 @@ the day they enter a cohort, we can use the function
 ## $ cohort_end_date      &lt;date&gt; 2019-12-30, 2020-01-01, 2020-05-25, 2020-01-01, 2…</code></pre>
 <pre class="r"><code>cdm$cohort2 &lt;- cdm$cohort2 %&gt;%
   addDemographics(
-    cdm = cdm,
     age = TRUE,
     ageName = &quot;age&quot;,
     ageGroup = NULL,
     sex = TRUE,
     sexName = &quot;sex&quot;,
-    priorHistory = TRUE,
-    priorHistoryName = &quot;prior_history&quot;,
+    priorObservation = TRUE,
+    priorObservationName = &quot;prior_observation&quot;,
     futureObservation = FALSE,
   )
 
@@ -625,7 +616,7 @@ cdm$cohort2 %&gt;%
 ## $ cohort_end_date      &lt;date&gt; 2020-05-25, 2020-01-01, 2020-05-25, 2019-12-30, 2…
 ## $ age                  &lt;dbl&gt; 41, 50, 41, 40, 42
 ## $ sex                  &lt;chr&gt; &quot;Male&quot;, &quot;Male&quot;, &quot;Male&quot;, &quot;Male&quot;, &quot;Female&quot;
-## $ prior_history        &lt;dbl&gt; 5343, 4167, 5343, 5196, 4635</code></pre>
+## $ prior_observation    &lt;dbl&gt; 5343, 4167, 5343, 5196, 4635</code></pre>
 </div>
 
 

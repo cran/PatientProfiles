@@ -37,7 +37,6 @@ cdm$cohort2 %>%
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$cohort1WashOut <- cdm$cohort1 %>%
   addCohortIntersectFlag(
-    cdm = cdm,
     targetCohortTable = "cohort2",
     window = list(c(-180, -1)),
     targetCohortId = 1,
@@ -50,7 +49,6 @@ cdm$cohort1WashOut %>%
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$cohort1StrokeCounts <- cdm$cohort1 %>%
   addCohortIntersectCount(
-    cdm = cdm,
     targetCohortTable = "cohort2",
     window = list(c(-Inf, -366), c(-365, -181), c(-180, -1)),
     targetCohortId = 1
@@ -108,7 +106,6 @@ cdm$cohort1
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$cohort1TimeTo <- cdm$cohort1 %>%
   addCohortIntersectDays(
-    cdm = cdm,
     targetCohortTable = "cohort2",
     targetCohortId = 1,
     order = "first"
@@ -120,7 +117,6 @@ cdm$cohort1TimeTo %>%
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$cohort1NextEvent <- cdm$cohort1 %>%
   addCohortIntersectDate(
-    cdm = cdm,
     targetCohortTable = "cohort2",
     order = "first",
     targetCohortId = 1,
@@ -133,7 +129,6 @@ cdm$cohort1NextEvent %>%
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$cohort1CohortIntersect <- cdm$cohort1 %>%
   addCohortIntersect(
-    cdm = cdm,
     targetCohortTable = "cohort2",
     order = "first",
     targetCohortId = 1,
@@ -145,7 +140,6 @@ cdm$cohort1CohortIntersect %>%
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$cohort1CohortIntersect <- cdm$cohort1 %>%
   addCohortIntersect(
-    cdm = cdm,
     targetCohortTable = "cohort2",
     order = "first",
     targetCohortId = 1,

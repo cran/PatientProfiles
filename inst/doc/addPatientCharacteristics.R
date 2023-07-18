@@ -33,7 +33,6 @@ cdm$condition_occurrence %>%
 
 cdm$condition_occurrence_mod <- cdm$condition_occurrence %>%
   addAge(
-    cdm = cdm,
     ageDefaultMonth = 1,
     ageDefaultDay = 6,
     indexDate = "condition_start_date",
@@ -60,9 +59,7 @@ cdm$condition_occurrence_mod %>%
 
 ## ---- message= FALSE, warning=FALSE-------------------------------------------
 cdm$condition_occurrence_mod <- cdm$condition_occurrence_mod %>%
-  addSex(
-    cdm = cdm
-  )
+  addSex()
 
 cdm$condition_occurrence_mod %>%
   glimpse()
@@ -91,18 +88,12 @@ cdm$cohort1 %>%
   glimpse()
 
 cdm$cohort1 <- cdm$cohort1 %>%
-  addInObservation(
-    cdm = cdm
-  ) %>%
+  addInObservation() %>%
   filter(
     in_observation == 1
   ) %>%
-  addPriorHistory(
-    cdm = cdm
-  ) %>%
-  addFutureObservation(
-    cdm = cdm
-  )
+  addPriorObservation() %>%
+  addFutureObservation()
 
 cdm$cohort1 %>%
   glimpse()
@@ -113,14 +104,13 @@ cdm$cohort2 %>%
 
 cdm$cohort2 <- cdm$cohort2 %>%
   addDemographics(
-    cdm = cdm,
     age = TRUE,
     ageName = "age",
     ageGroup = NULL,
     sex = TRUE,
     sexName = "sex",
-    priorHistory = TRUE,
-    priorHistoryName = "prior_history",
+    priorObservation = TRUE,
+    priorObservationName = "prior_observation",
     futureObservation = FALSE,
   )
 
