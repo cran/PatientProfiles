@@ -58,7 +58,6 @@ cdm$cohort1StrokeCounts %>%
   glimpse()
 
 ## -----------------------------------------------------------------------------
-
 # This will be our "main" cohort
 cohort1 <- dplyr::tibble(
   cohort_definition_id = 1,
