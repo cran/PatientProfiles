@@ -1,4 +1,4 @@
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  library(DBI)
 #  library(CDMConnector)
 #  
@@ -17,7 +17,7 @@
 #    cohort_tables = "cohort_example"
 #  )
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 library(PatientProfiles)
 library(duckdb)
 library(dplyr)
@@ -27,14 +27,14 @@ cdm <- mockPatientProfiles(
   drug_exposure_size = 1000
 )
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$cohort1 %>%
   glimpse()
 
 cdm$cohort2 %>%
   glimpse()
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$cohort1WashOut <- cdm$cohort1 %>%
   addCohortIntersectFlag(
     targetCohortTable = "cohort2",
@@ -46,7 +46,7 @@ cdm$cohort1WashOut <- cdm$cohort1 %>%
 cdm$cohort1WashOut %>%
   glimpse()
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$cohort1StrokeCounts <- cdm$cohort1 %>%
   addCohortIntersectCount(
     targetCohortTable = "cohort2",
@@ -98,11 +98,11 @@ cdm <- mockPatientProfiles(
 cdm$cohort1 <- cdm$cohort1 %>% addCohortIntersectCount(cdm, targetCohortTable = "cohort2", window = list(c(-30, -1)))
 cdm$cohort1
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$cohort1 <- cdm$cohort1 %>% addCohortIntersectCount(cdm, targetCohortTable = "cohort2", window = list(c(-30, -1)), targetEndDate = "cohort_start_date")
 cdm$cohort1
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$cohort1TimeTo <- cdm$cohort1 %>%
   addCohortIntersectDays(
     targetCohortTable = "cohort2",
@@ -113,7 +113,7 @@ cdm$cohort1TimeTo <- cdm$cohort1 %>%
 cdm$cohort1TimeTo %>%
   glimpse()
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$cohort1NextEvent <- cdm$cohort1 %>%
   addCohortIntersectDate(
     targetCohortTable = "cohort2",
@@ -125,7 +125,7 @@ cdm$cohort1NextEvent <- cdm$cohort1 %>%
 cdm$cohort1NextEvent %>%
   glimpse()
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$cohort1CohortIntersect <- cdm$cohort1 %>%
   addCohortIntersect(
     targetCohortTable = "cohort2",
@@ -136,7 +136,7 @@ cdm$cohort1CohortIntersect <- cdm$cohort1 %>%
 cdm$cohort1CohortIntersect %>%
   glimpse()
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$cohort1CohortIntersect <- cdm$cohort1 %>%
   addCohortIntersect(
     targetCohortTable = "cohort2",

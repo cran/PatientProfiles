@@ -11,7 +11,7 @@
 
 <meta name="author" content="Martí Català, Mike Du, Yuchen Guo, Kim López-Güell, Xintong Li, Núria Mercadé-Besora, and Edward Burn" />
 
-<meta name="date" content="2023-10-06" />
+<meta name="date" content="2023-11-13" />
 
 <title>Get patients’ characteristics</title>
 
@@ -353,7 +353,7 @@ display: none;
 <h1 class="title toc-ignore">Get patients’ characteristics</h1>
 <h4 class="author">Martí Català, Mike Du, Yuchen Guo, Kim López-Güell,
 Xintong Li, Núria Mercadé-Besora, and Edward Burn</h4>
-<h4 class="date">2023-10-06</h4>
+<h4 class="date">2023-11-13</h4>
 
 </div>
 
@@ -424,7 +424,7 @@ patients in 20-year age band and if they are 60 years old or more.</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 5
-## Database: DuckDB 0.9.0 [martics@Windows 10 x64:R 4.2.3/:memory:]
+## Database: DuckDB 0.7.1 [martics@Windows 10 x64:R 4.2.1/:memory:]
 ## $ condition_occurrence_id &lt;int&gt; 314, 970, 349, 234, 193, 919, 113, 277, 491, 9…
 ## $ person_id               &lt;int&gt; 314, 970, 349, 234, 193, 919, 113, 277, 491, 9…
 ## $ condition_concept_id    &lt;int&gt; 4, 5, 1, 2, 3, 4, 3, 2, 1, 2, 1, 5, 3, 4, 4, 1…
@@ -457,15 +457,15 @@ cdm$condition_occurrence_mod %&gt;%
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 8
-## Database: DuckDB 0.9.0 [martics@Windows 10 x64:R 4.2.3/:memory:]
-## $ condition_occurrence_id &lt;int&gt; 314, 349, 234, 193, 919, 113, 277, 26, 276, 65…
-## $ person_id               &lt;int&gt; 314, 349, 234, 193, 919, 113, 277, 26, 276, 65…
-## $ condition_concept_id    &lt;int&gt; 4, 1, 2, 3, 4, 3, 2, 1, 5, 3, 4, 1, 2, 4, 5, 2…
-## $ condition_start_date    &lt;date&gt; 2005-08-25, 2009-02-15, 2008-05-03, 2013-10-1…
-## $ condition_end_date      &lt;date&gt; 2006-06-14, 2011-06-24, 2009-01-05, 2014-02-1…
-## $ age                     &lt;dbl&gt; 58, 68, 57, 62, 53, 52, 22, 9, 76, 89, 70, 69,…
-## $ ageBand_20              &lt;chr&gt; &quot;40 to 59&quot;, &quot;60 to 79&quot;, &quot;40 to 59&quot;, &quot;60 to 79&quot;…
-## $ ageThreshold_60         &lt;chr&gt; &quot;less60&quot;, &quot;more60&quot;, &quot;less60&quot;, &quot;more60&quot;, &quot;less6…</code></pre>
+## Database: DuckDB 0.7.1 [martics@Windows 10 x64:R 4.2.1/:memory:]
+## $ condition_occurrence_id &lt;int&gt; 314, 234, 277, 26, 276, 656, 275, 249, 150, 9,…
+## $ person_id               &lt;int&gt; 314, 234, 277, 26, 276, 656, 275, 249, 150, 9,…
+## $ condition_concept_id    &lt;int&gt; 4, 2, 2, 1, 5, 3, 4, 2, 4, 5, 2, 2, 2, 3, 1, 1…
+## $ condition_start_date    &lt;date&gt; 2005-08-25, 2008-05-03, 2007-04-26, 2009-01-0…
+## $ condition_end_date      &lt;date&gt; 2006-06-14, 2009-01-05, 2007-05-07, 2010-02-0…
+## $ age                     &lt;dbl&gt; 58, 57, 22, 9, 76, 89, 70, 49, 55, 17, 39, 26,…
+## $ ageBand_20              &lt;chr&gt; &quot;40 to 59&quot;, &quot;40 to 59&quot;, &quot;20 to 39&quot;, &quot;0 to 19&quot;,…
+## $ ageThreshold_60         &lt;chr&gt; &quot;less60&quot;, &quot;less60&quot;, &quot;less60&quot;, &quot;less60&quot;, &quot;more6…</code></pre>
 <p><code>addSex()</code>: appends a column to the input table indicating
 the sex for each patient as “Female” or “Male”.</p>
 <p>First, we can add the sex of the patients to the table. This
@@ -480,16 +480,16 @@ cdm$condition_occurrence_mod %&gt;%
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 9
-## Database: DuckDB 0.9.0 [martics@Windows 10 x64:R 4.2.3/:memory:]
-## $ condition_occurrence_id &lt;int&gt; 314, 349, 234, 193, 919, 113, 277, 26, 276, 65…
-## $ person_id               &lt;int&gt; 314, 349, 234, 193, 919, 113, 277, 26, 276, 65…
-## $ condition_concept_id    &lt;int&gt; 4, 1, 2, 3, 4, 3, 2, 1, 5, 3, 4, 1, 2, 4, 5, 2…
-## $ condition_start_date    &lt;date&gt; 2005-08-25, 2009-02-15, 2008-05-03, 2013-10-1…
-## $ condition_end_date      &lt;date&gt; 2006-06-14, 2011-06-24, 2009-01-05, 2014-02-1…
-## $ age                     &lt;dbl&gt; 58, 68, 57, 62, 53, 52, 22, 9, 76, 89, 70, 69,…
-## $ ageBand_20              &lt;chr&gt; &quot;40 to 59&quot;, &quot;60 to 79&quot;, &quot;40 to 59&quot;, &quot;60 to 79&quot;…
-## $ ageThreshold_60         &lt;chr&gt; &quot;less60&quot;, &quot;more60&quot;, &quot;less60&quot;, &quot;more60&quot;, &quot;less6…
-## $ sex                     &lt;chr&gt; &quot;Male&quot;, &quot;Female&quot;, &quot;Male&quot;, &quot;Female&quot;, &quot;Female&quot;, …</code></pre>
+## Database: DuckDB 0.7.1 [martics@Windows 10 x64:R 4.2.1/:memory:]
+## $ condition_occurrence_id &lt;int&gt; 314, 234, 277, 26, 276, 656, 275, 249, 150, 9,…
+## $ person_id               &lt;int&gt; 314, 234, 277, 26, 276, 656, 275, 249, 150, 9,…
+## $ condition_concept_id    &lt;int&gt; 4, 2, 2, 1, 5, 3, 4, 2, 4, 5, 2, 2, 2, 3, 1, 1…
+## $ condition_start_date    &lt;date&gt; 2005-08-25, 2008-05-03, 2007-04-26, 2009-01-0…
+## $ condition_end_date      &lt;date&gt; 2006-06-14, 2009-01-05, 2007-05-07, 2010-02-0…
+## $ age                     &lt;dbl&gt; 58, 57, 22, 9, 76, 89, 70, 49, 55, 17, 39, 26,…
+## $ ageBand_20              &lt;chr&gt; &quot;40 to 59&quot;, &quot;40 to 59&quot;, &quot;20 to 39&quot;, &quot;0 to 19&quot;,…
+## $ ageThreshold_60         &lt;chr&gt; &quot;less60&quot;, &quot;less60&quot;, &quot;less60&quot;, &quot;less60&quot;, &quot;more6…
+## $ sex                     &lt;chr&gt; &quot;Male&quot;, &quot;Male&quot;, &quot;Male&quot;, &quot;Female&quot;, &quot;Male&quot;, &quot;Mal…</code></pre>
 <pre class="r"><code>numConditions &lt;- cdm$condition_occurrence_mod %&gt;%
   filter(
     sex == &quot;Male&quot;
@@ -509,7 +509,7 @@ cdm$condition_occurrence_mod %&gt;%
 
 numConditions</code></pre>
 <pre><code>## # Source:   SQL [2 x 2]
-## # Database: DuckDB 0.9.0 [martics@Windows 10 x64:R 4.2.3/:memory:]
+## # Database: DuckDB 0.7.1 [martics@Windows 10 x64:R 4.2.1/:memory:]
 ##   ageBand_20     n
 ##   &lt;chr&gt;      &lt;dbl&gt;
 ## 1 60 to 79      29
@@ -537,7 +537,7 @@ future observation days. Notice that we are not using the argument
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 4
-## Database: DuckDB 0.9.0 [martics@Windows 10 x64:R 4.2.3/:memory:]
+## Database: DuckDB 0.7.1 [martics@Windows 10 x64:R 4.2.1/:memory:]
 ## $ cohort_definition_id &lt;dbl&gt; 1, 1, 1, 2
 ## $ subject_id           &lt;dbl&gt; 1, 1, 2, 3
 ## $ cohort_start_date    &lt;date&gt; 2020-01-01, 2020-06-01, 2020-01-02, 2020-01-01
@@ -554,7 +554,7 @@ cdm$cohort1 %&gt;%
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 7
-## Database: DuckDB 0.9.0 [martics@Windows 10 x64:R 4.2.3/:memory:]
+## Database: DuckDB 0.7.1 [martics@Windows 10 x64:R 4.2.1/:memory:]
 ## $ cohort_definition_id &lt;dbl&gt; 2, 1, 1, 1
 ## $ subject_id           &lt;dbl&gt; 3, 1, 2, 1
 ## $ cohort_start_date    &lt;date&gt; 2020-01-01, 2020-06-01, 2020-01-02, 2020-01-01
@@ -582,7 +582,7 @@ the day they enter a cohort, we can use the function
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 4
-## Database: DuckDB 0.9.0 [martics@Windows 10 x64:R 4.2.3/:memory:]
+## Database: DuckDB 0.7.1 [martics@Windows 10 x64:R 4.2.1/:memory:]
 ## $ cohort_definition_id &lt;dbl&gt; 1, 1, 2, 3, 1
 ## $ subject_id           &lt;dbl&gt; 1, 3, 1, 2, 1
 ## $ cohort_start_date    &lt;date&gt; 2019-12-30, 2020-01-01, 2020-05-25, 2020-01-01, 2…
@@ -603,14 +603,14 @@ cdm$cohort2 %&gt;%
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 7
-## Database: DuckDB 0.9.0 [martics@Windows 10 x64:R 4.2.3/:memory:]
-## $ cohort_definition_id &lt;dbl&gt; 1, 1, 3, 2, 1
-## $ subject_id           &lt;dbl&gt; 3, 1, 2, 1, 1
-## $ cohort_start_date    &lt;date&gt; 2020-01-01, 2020-05-25, 2020-01-01, 2020-05-25, 2…
-## $ cohort_end_date      &lt;date&gt; 2020-01-01, 2020-05-25, 2020-01-01, 2020-05-25, 2…
-## $ age                  &lt;dbl&gt; 42, 41, 50, 41, 40
-## $ sex                  &lt;chr&gt; &quot;Female&quot;, &quot;Male&quot;, &quot;Male&quot;, &quot;Male&quot;, &quot;Male&quot;
-## $ prior_observation    &lt;dbl&gt; 4635, 5343, 4167, 5343, 5196</code></pre>
+## Database: DuckDB 0.7.1 [martics@Windows 10 x64:R 4.2.1/:memory:]
+## $ cohort_definition_id &lt;dbl&gt; 1, 3, 2, 1, 1
+## $ subject_id           &lt;dbl&gt; 1, 2, 1, 1, 3
+## $ cohort_start_date    &lt;date&gt; 2020-05-25, 2020-01-01, 2020-05-25, 2019-12-30, 2…
+## $ cohort_end_date      &lt;date&gt; 2020-05-25, 2020-01-01, 2020-05-25, 2019-12-30, 2…
+## $ age                  &lt;dbl&gt; 41, 50, 41, 40, 42
+## $ sex                  &lt;chr&gt; &quot;Male&quot;, &quot;Male&quot;, &quot;Male&quot;, &quot;Male&quot;, &quot;Female&quot;
+## $ prior_observation    &lt;dbl&gt; 5343, 4167, 5343, 5196, 4635</code></pre>
 </div>
 
 

@@ -1,4 +1,4 @@
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  library(DBI)
 #  library(CDMConnector)
 #  
@@ -17,7 +17,7 @@
 #    cohort_tables = "cohort_example"
 #  )
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 library(PatientProfiles)
 library(duckdb)
 library(dplyr)
@@ -27,7 +27,7 @@ cdm <- mockPatientProfiles(
   drug_exposure_size = 1000
 )
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$condition_occurrence %>%
   glimpse()
 
@@ -57,7 +57,7 @@ cdm$condition_occurrence_mod <- cdm$condition_occurrence %>%
 cdm$condition_occurrence_mod %>%
   glimpse()
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$condition_occurrence_mod <- cdm$condition_occurrence_mod %>%
   addSex()
 
@@ -83,7 +83,7 @@ numConditions <- cdm$condition_occurrence_mod %>%
 
 numConditions
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$cohort1 %>%
   glimpse()
 
@@ -98,7 +98,7 @@ cdm$cohort1 <- cdm$cohort1 %>%
 cdm$cohort1 %>%
   glimpse()
 
-## ---- message= FALSE, warning=FALSE-------------------------------------------
+## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$cohort2 %>%
   glimpse()
 
