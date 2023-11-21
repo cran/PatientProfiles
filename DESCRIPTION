@@ -2,7 +2,7 @@ Package: PatientProfiles
 Type: Package
 Title: Identify Characteristics of Patients in the OMOP Common Data
         Model
-Version: 0.5.0
+Version: 0.5.1
 Authors@R: c(
     person("Marti", "Catala", , "marti.catalasabate@ndorms.ox.ac.uk", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0003-3308-9905")),
@@ -27,7 +27,7 @@ RoxygenNote: 7.2.3
 Suggests: covr, duckdb, testthat (>= 3.1.5), knitr, CodelistGenerator,
         rmarkdown, glue, odbc, ggplot2, spelling, RPostgres, dbplyr,
         PaRe, here, magick, plotly, ggraph, DT, cowplot, DiagrammeRsvg
-Imports: magrittr, CDMConnector (>= 1.0.0), dplyr, tidyr, checkmate,
+Imports: magrittr, CDMConnector (>= 1.2.0), dplyr, tidyr, checkmate,
         lubridate, DBI, rlang, cli, pillar, stringr, gt
 VignetteBuilder: knitr
 URL: https://darwin-eu-dev.github.io/PatientProfiles/
@@ -36,7 +36,7 @@ Depends: R (>= 2.10)
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 NeedsCompilation: no
-Packaged: 2023-11-13 17:51:57 UTC; martics
+Packaged: 2023-11-21 14:03:42 UTC; martics
 Author: Marti Catala [aut, cre] (<https://orcid.org/0000-0003-3308-9905>),
   Yuchen Guo [aut] (<https://orcid.org/0000-0002-0847-4855>),
   Mike Du [aut] (<https://orcid.org/0000-0002-9517-8834>),
@@ -45,4 +45,4 @@ Author: Marti Catala [aut, cre] (<https://orcid.org/0000-0003-3308-9905>),
   Nuria Mercade-Besora [ctb] (<https://orcid.org/0009-0006-7948-3747>),
   Xintong Li [ctb] (<https://orcid.org/0000-0002-6872-5804>)
 Repository: CRAN
-Date/Publication: 2023-11-13 18:33:19 UTC
+Date/Publication: 2023-11-21 14:40:02 UTC

@@ -1,10 +1,10 @@
-9ff71b509d5a376cbd6bbd77096e9a12 *DESCRIPTION
+e3d01a0c48d1901ff3655f82388b58d5 *DESCRIPTION
 2ea3b0bba0b48eb7eb4699b1f0ed96b0 *NAMESPACE
 74881163f608c16c2a8a3b44b578c126 *R/PatientProfiles-package.R
 eada83aadedbf1b1480aa54ab94903a0 *R/addAttributes.R
 171ed0f9014cf01443afe1a86d82c68f *R/addCategories.R
 ca970102548d3f1f7682a0cf977d2f52 *R/addCohortIntersect.R
-0922520ebfa56865a9c8464b7a6e7f92 *R/addConceptIntersect.R
+85005a7855f7ee31160fcf29dc6abb6e *R/addConceptIntersect.R
 f7274714c55735247de56a16775e5a93 *R/addDateOfBirth.R
 257f93445d5842d47f4894510d5112f9 *R/addDemographics.R
 9d3075a350f27b9aaa82b322902f002c *R/addIntersect.R
@@ -12,7 +12,7 @@ f7274714c55735247de56a16775e5a93 *R/addDateOfBirth.R
 098272a92d87a79dc1160fa85206e52b *R/formats.R
 bffb6fd0f9010eea822f61fc61ad79cd *R/gtResult.R
 d7b89bd53a8686358ef913bc38f59ecb *R/mockPatientProfiles.R
-aaeae4e7243920083383200d44756d5c *R/summariseCharacteristics.R
+3b3dbe075d412e04ae3aa2d0e5d802c1 *R/summariseCharacteristics.R
 a58f5bf83f2f86e03b09cc8649bae615 *R/summariseLargeScaleCharacteristics.R
 1ab745a121e85834c7c2289073fabdf0 *R/summariseResult.R
 4db3cf964921c81dead2227efaebfce1 *R/sysdata.rda
@@ -22,9 +22,9 @@ d2495aa21fc3f1dc34cade9560afe331 *build/vignette.rds
 3074f68ba01a05a9e8e56e27fcf30e39 *inst/WORDLIST
 71ff470c2bf59dbd0446b8f6bcd0d878 *inst/doc/addCohortIntersections.R
 92bf7fe1e4d03364d3dba48959e7da51 *inst/doc/addCohortIntersections.Rmd
-d774dd7f45052781b70d7c0ff79d8f24 *inst/doc/addCohortIntersections.html
+d12ca9a562f4a22f5a1f0e2d70167fb5 *inst/doc/addCohortIntersections.html
 de6c3c60113b33f3699975483a560094 *inst/doc/addPatientCharacteristics.R
-a5115ed7bdba7e96a8be5ec61198908c *inst/doc/addPatientCharacteristics.html
+670be81f881d40c3c80d60562a20e302 *inst/doc/addPatientCharacteristics.html
 ef5a777eb7b52b8032967a984410ab00 *inst/doc/addPatientCharacteristics.rmd
 40a8104f4d441ce06ab48ddbf25fd03f *man/PatientProfiles-package.Rd
 63a5ea7d5d8f02cda685c898620b7e53 *man/addAge.Rd
@@ -83,7 +83,7 @@ ba1ddc3f5bb66f01511c7a190a68a60a *tests/testthat/test-addSex.R
 cb9acb51fb76a6801e0bf3746dae0032 *tests/testthat/test-checks.R
 b24194bb2f9b9f424dbb67f138db1ed1 *tests/testthat/test-format.R
 ff7b40820f346c95ced41aff970f522c *tests/testthat/test-mockPatientProfiles.R
-3a397b66a71f6aeab45ae6be5ba56922 *tests/testthat/test-summariseCharacteristics.R
+c10c7a50cad630caa11cb623c55247a5 *tests/testthat/test-summariseCharacteristics.R
 324b9cb5037dac053f659034e926b3c5 *tests/testthat/test-summariseLargeScaleCharacteristics.R
 a22dfb161258590b83f685c38fa1dc58 *tests/testthat/test-summariseResult.R
 4c43d45404ab430096062de1854f0b7d *tests/testthat/test-tableSummary.R
