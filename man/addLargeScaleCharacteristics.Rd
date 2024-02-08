@@ -10,8 +10,10 @@ addLargeScaleCharacteristics(
   window = list(c(0, Inf)),
   eventInWindow = NULL,
   episodeInWindow = NULL,
-  includeSource = FALSE,
-  minimumFrequency = 0.005
+  indexDate = "cohort_start_date",
+  censorDate = NULL,
+  minimumFrequency = 0.005,
+  excludedCodes = NULL
 )
 }
 \arguments{
@@ -23,9 +25,15 @@ addLargeScaleCharacteristics(
 
 \item{episodeInWindow}{Tables to characterise the episodes in the window.}
 
-\item{includeSource}{Whether to include source concepts.}
+\item{indexDate}{Variable in x that contains the date to compute the
+intersection.}
+
+\item{censorDate}{whether to censor overlap events at a specific date
+or a column date of x}
 
 \item{minimumFrequency}{Minimum frequency covariates to report.}
+
+\item{excludedCodes}{Codes excluded.}
 }
 \value{
 The output of this function is the cohort with the new created

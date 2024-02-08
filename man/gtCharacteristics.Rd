@@ -22,7 +22,7 @@ gtCharacteristics(
 
 \item{format}{formats and labels to use}
 
-\item{keepNotFormatted}{Wheather to keep not formated estimate types}
+\item{keepNotFormatted}{Whether to keep not formatted estimate types}
 
 \item{decimals}{Decimals per estimate_type}
 
@@ -34,7 +34,7 @@ gtCharacteristics(
 New table in gt format
 }
 \description{
-`r lifecycle::badge("experimental")`
+`r lifecycle::badge("deprecated")`
 }
 \examples{
 \donttest{
@@ -54,9 +54,7 @@ summariseCharacteristics(
     "Medications" = list(
       targetCohortTable = "cohort2", value = "flag", window = c(-365, 0)
     )
-  ),
-  minCellCount = 1
-) \%>\%
-  gtCharacteristics()
+  )
+)
 }
 }

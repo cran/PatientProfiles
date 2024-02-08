@@ -6,15 +6,14 @@
 \usage{
 summariseCharacteristics(
   cohort,
-  cdm = attr(cohort, "cdm_reference"),
+  cdm = lifecycle::deprecated(),
   strata = list(),
   demographics = TRUE,
   ageGroup = NULL,
   tableIntersect = list(),
   cohortIntersect = list(),
   conceptIntersect = list(),
-  otherVariables = character(),
-  minCellCount = 5
+  otherVariables = character()
 )
 }
 \arguments{
@@ -39,8 +38,6 @@ function to add variables to summarise.}
 
 \item{otherVariables}{Other variables contained in cohort that you want to be
 summarised.}
-
-\item{minCellCount}{minimum counts due to obscure}
 }
 \value{
 A summary of the characteristics of the individuals
@@ -58,14 +55,10 @@ summariseCharacteristics(
   cohort = cdm$cohort1,
   ageGroup = list(c(0, 19), c(20, 39), c(40, 59), c(60, 79), c(80, 150)),
   tableIntersect = list(
-    "Visits" = list(
-      tableName = "visit_occurrence", value = "count", window = c(-365, 0)
-    )
+    tableName = "visit_occurrence", value = "count", window = c(-365, -1)
   ),
   cohortIntersect = list(
-    "Medications" = list(
-      targetCohortTable = "cohort2", value = "flag", window = c(-365, 0)
-    )
+    targetCohortTable = "cohort2", value = "flag", window = c(-365, -1)
   )
 )
 }

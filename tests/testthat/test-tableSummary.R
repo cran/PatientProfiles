@@ -4,7 +4,7 @@ test_that("with and with overall groups and strata", {
     result_type = "Summary characteristics",
     group_name = "Cohort name",
     group_level = c(rep("Cohort 1", 11), rep("Cohort 2", 11)),
-    strata_name = "Overall", strata_level = "Overall",
+    strata_name = "overall", strata_level = "overall",
     variable = rep(c(
       "Number subjects", "Number records", rep("Age", 5),
       rep("Medications prior year", 4)
@@ -21,8 +21,9 @@ test_that("with and with overall groups and strata", {
       20, 42, 83, 12, 13.63636, 5, 5.681818
     ))
   )
-  x <- summaryChar %>%
-    gtCharacteristics()
+  expect_warning(
+    x <- summaryChar %>% gtCharacteristics()
+  )
 
   expect_false("percentage" %in% x$format)
 })

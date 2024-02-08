@@ -48,67 +48,16 @@
 #'
 #' @examples
 #' \donttest{
-#' cohort1 <- dplyr::tibble(
-#'   cohort_definition_id = c(1, 1, 1, 1, 1),
-#'   subject_id = c(1, 1, 1, 2, 2),
-#'   cohort_start_date = as.Date(
-#'     c(
-#'       "2020-01-01",
-#'       "2020-01-15",
-#'       "2020-01-20",
-#'       "2020-01-01",
-#'       "2020-02-01"
-#'     )
-#'   ),
-#'   cohort_end_date = as.Date(
-#'     c(
-#'       "2020-01-01",
-#'       "2020-01-15",
-#'       "2020-01-20",
-#'       "2020-01-01",
-#'       "2020-02-01"
-#'     )
-#'   )
-#' )
+#' cdm <- mockPatientProfiles()
 #'
-#' cohort2 <- dplyr::tibble(
-#'   cohort_definition_id = c(1, 1, 1, 1, 1, 1, 1),
-#'   subject_id = c(1, 1, 1, 2, 2, 2, 1),
-#'   cohort_start_date = as.Date(
-#'     c(
-#'       "2020-01-15",
-#'       "2020-01-25",
-#'       "2020-01-26",
-#'       "2020-01-29",
-#'       "2020-03-15",
-#'       "2020-01-24",
-#'       "2020-02-16"
-#'     )
-#'   ),
-#'   cohort_end_date = as.Date(
-#'     c(
-#'       "2020-01-15",
-#'       "2020-01-25",
-#'       "2020-01-26",
-#'       "2020-01-29",
-#'       "2020-03-15",
-#'       "2020-01-24",
-#'       "2020-02-16"
-#'     )
-#'   ),
-#' )
-#'
-#' cdm <- mockPatientProfiles(cohort1 = cohort1, cohort2 = cohort2)
-#'
-#' result <- cdm$cohort1 %>%
+#' cdm$cohort1 %>%
 #'   addCohortIntersect(
 #'     targetCohortTable = "cohort2"
-#'   ) %>%
-#'   dplyr::collect()
+#'   )
 #' }
 #'
 addCohortIntersect <- function(x,
-                               cdm = attr(x, "cdm_reference"),
+                               cdm = lifecycle::deprecated(),
                                targetCohortTable,
                                targetCohortId = NULL,
                                indexDate = "cohort_start_date",
@@ -122,6 +71,39 @@ addCohortIntersect <- function(x,
                                date = TRUE,
                                days = TRUE,
                                nameStyle = "{value}_{cohort_name}_{window_name}") {
+  lifecycle::deprecate_warn(
+    when = "0.6.0",
+    what = "addCohortIntersect()",
+    details = c(
+      "please use the specific functions instead:",
+      "*" = "addCohortIntersectFlag()", "*" = "addCohortIntersectCount()",
+      "*" = "addCohortIntersectDate()", "*" = "addCohortIntersectDays()"
+    )
+  )
+  .addCohortIntersect(
+    x = x, targetCohortTable = targetCohortTable,
+    targetCohortId = targetCohortId, indexDate = indexDate,
+    censorDate = censorDate, targetStartDate = targetStartDate,
+    targetEndDate = targetEndDate, window = window, order = order, flag = flag,
+    count = count, date = date, days = days, nameStyle = nameStyle
+  )
+}
+
+.addCohortIntersect <- function(x,
+                                targetCohortTable,
+                                targetCohortId = NULL,
+                                indexDate = "cohort_start_date",
+                                censorDate = NULL,
+                                targetStartDate = "cohort_start_date",
+                                targetEndDate = "cohort_end_date",
+                                window = list(c(0, Inf)),
+                                order = "first",
+                                flag = TRUE,
+                                count = TRUE,
+                                date = TRUE,
+                                days = TRUE,
+                                nameStyle = "{value}_{cohort_name}_{window_name}") {
+  cdm <- omopgenerics::cdmReference(x)
   checkCdm(cdm, tables = targetCohortTable)
   checkmate::assertNumeric(targetCohortId, any.missing = FALSE, null.ok = TRUE)
   parameters <- checkCohortNames(cdm[[targetCohortTable]], targetCohortId, targetCohortTable)
@@ -135,7 +117,6 @@ addCohortIntersect <- function(x,
 
   x <- x %>%
     addIntersect(
-      cdm = cdm,
       tableName = targetCohortTable,
       filterVariable = parameters$filter_variable,
       filterId = parameters$filter_id,
@@ -177,67 +158,16 @@ addCohortIntersect <- function(x,
 #'
 #' @examples
 #' \donttest{
-#' cohort1 <- dplyr::tibble(
-#'   cohort_definition_id = c(1, 1, 1, 1, 1),
-#'   subject_id = c(1, 1, 1, 2, 2),
-#'   cohort_start_date = as.Date(
-#'     c(
-#'       "2020-01-01",
-#'       "2020-01-15",
-#'       "2020-01-20",
-#'       "2020-01-01",
-#'       "2020-02-01"
-#'     )
-#'   ),
-#'   cohort_end_date = as.Date(
-#'     c(
-#'       "2020-01-01",
-#'       "2020-01-15",
-#'       "2020-01-20",
-#'       "2020-01-01",
-#'       "2020-02-01"
-#'     )
-#'   )
-#' )
+#' cdm <- mockPatientProfiles()
 #'
-#' cohort2 <- dplyr::tibble(
-#'   cohort_definition_id = c(1, 1, 1, 1, 1, 1, 1),
-#'   subject_id = c(1, 1, 1, 2, 2, 2, 1),
-#'   cohort_start_date = as.Date(
-#'     c(
-#'       "2020-01-15",
-#'       "2020-01-25",
-#'       "2020-01-26",
-#'       "2020-01-29",
-#'       "2020-03-15",
-#'       "2020-01-24",
-#'       "2020-02-16"
-#'     )
-#'   ),
-#'   cohort_end_date = as.Date(
-#'     c(
-#'       "2020-01-15",
-#'       "2020-01-25",
-#'       "2020-01-26",
-#'       "2020-01-29",
-#'       "2020-03-15",
-#'       "2020-01-24",
-#'       "2020-02-16"
-#'     )
-#'   ),
-#' )
-#'
-#' cdm <- mockPatientProfiles(cohort1 = cohort1, cohort2 = cohort2)
-#'
-#' result <- cdm$cohort1 %>%
+#' cdm$cohort1 %>%
 #'   addCohortIntersectFlag(
 #'     targetCohortTable = "cohort2"
-#'   ) %>%
-#'   dplyr::collect()
+#'   )
 #' }
 #'
 addCohortIntersectFlag <- function(x,
-                                   cdm = attr(x, "cdm_reference"),
+                                   cdm = lifecycle::deprecated(),
                                    targetCohortTable,
                                    targetCohortId = NULL,
                                    indexDate = "cohort_start_date",
@@ -246,6 +176,10 @@ addCohortIntersectFlag <- function(x,
                                    targetEndDate = "cohort_end_date",
                                    window = list(c(0, Inf)),
                                    nameStyle = "{cohort_name}_{window_name}") {
+  if (lifecycle::is_present(cdm)) {
+    lifecycle::deprecate_warn("0.6.0", "addCohortIntersectFlag(cdm)")
+  }
+  cdm <- omopgenerics::cdmReference(x)
   checkCdm(cdm, tables = targetCohortTable)
   checkmate::assertNumeric(targetCohortId, any.missing = FALSE, null.ok = TRUE)
   parameters <- checkCohortNames(cdm[[targetCohortTable]], targetCohortId, targetCohortTable)
@@ -253,7 +187,6 @@ addCohortIntersectFlag <- function(x,
 
   x <- x %>%
     addIntersect(
-      cdm = cdm,
       tableName = targetCohortTable,
       filterVariable = parameters$filter_variable,
       filterId = parameters$filter_id,
@@ -295,70 +228,16 @@ addCohortIntersectFlag <- function(x,
 #'
 #' @examples
 #' \donttest{
-#' library(PatientProfiles)
-#' library(dplyr)
+#' cdm <- mockPatientProfiles()
 #'
-#' cohort1 <- dplyr::tibble(
-#'   cohort_definition_id = c(1, 1, 1, 1, 1),
-#'   subject_id = c(1, 1, 1, 2, 2),
-#'   cohort_start_date = as.Date(
-#'     c(
-#'       "2020-01-01",
-#'       "2020-01-15",
-#'       "2020-01-20",
-#'       "2020-01-01",
-#'       "2020-02-01"
-#'     )
-#'   ),
-#'   cohort_end_date = as.Date(
-#'     c(
-#'       "2020-01-01",
-#'       "2020-01-15",
-#'       "2020-01-20",
-#'       "2020-01-01",
-#'       "2020-02-01"
-#'     )
-#'   )
-#' )
-#'
-#' cohort2 <- dplyr::tibble(
-#'   cohort_definition_id = c(1, 1, 1, 1, 1, 1, 1),
-#'   subject_id = c(1, 1, 1, 2, 2, 2, 1),
-#'   cohort_start_date = as.Date(
-#'     c(
-#'       "2020-01-15",
-#'       "2020-01-25",
-#'       "2020-01-26",
-#'       "2020-01-29",
-#'       "2020-03-15",
-#'       "2020-01-24",
-#'       "2020-02-16"
-#'     )
-#'   ),
-#'   cohort_end_date = as.Date(
-#'     c(
-#'       "2020-01-15",
-#'       "2020-01-25",
-#'       "2020-01-26",
-#'       "2020-01-29",
-#'       "2020-03-15",
-#'       "2020-01-24",
-#'       "2020-02-16"
-#'     )
-#'   ),
-#' )
-#'
-#' cdm <- mockPatientProfiles(cohort1 = cohort1, cohort2 = cohort2)
-#'
-#' result <- cdm$cohort1 %>%
+#' cdm$cohort1 %>%
 #'   addCohortIntersectCount(
 #'     targetCohortTable = "cohort2"
-#'   ) %>%
-#'   dplyr::collect()
+#'   )
 #' }
 #'
 addCohortIntersectCount <- function(x,
-                                    cdm = attr(x, "cdm_reference"),
+                                    cdm = lifecycle::deprecated(),
                                     targetCohortTable,
                                     targetCohortId = NULL,
                                     indexDate = "cohort_start_date",
@@ -367,6 +246,10 @@ addCohortIntersectCount <- function(x,
                                     targetEndDate = "cohort_end_date",
                                     window = list(c(0, Inf)),
                                     nameStyle = "{cohort_name}_{window_name}") {
+  if (lifecycle::is_present(cdm)) {
+    lifecycle::deprecate_warn("0.6.0", "addCohortIntersectCount(cdm)")
+  }
+  cdm <- omopgenerics::cdmReference(x)
   checkCdm(cdm, tables = targetCohortTable)
   checkmate::assertNumeric(targetCohortId, any.missing = FALSE, null.ok = TRUE)
   parameters <- checkCohortNames(cdm[[targetCohortTable]], targetCohortId, targetCohortTable)
@@ -374,7 +257,6 @@ addCohortIntersectCount <- function(x,
 
   x <- x %>%
     addIntersect(
-      cdm = cdm,
       tableName = targetCohortTable,
       filterVariable = parameters$filter_variable,
       filterId = parameters$filter_id,
@@ -419,70 +301,16 @@ addCohortIntersectCount <- function(x,
 #'
 #' @examples
 #' \donttest{
-#' library(PatientProfiles)
-#' library(dplyr)
+#' cdm <- mockPatientProfiles()
 #'
-#' cohort1 <- dplyr::tibble(
-#'   cohort_definition_id = c(1, 1, 1, 1, 1),
-#'   subject_id = c(1, 1, 1, 2, 2),
-#'   cohort_start_date = as.Date(
-#'     c(
-#'       "2020-01-01",
-#'       "2020-01-15",
-#'       "2020-01-20",
-#'       "2020-01-01",
-#'       "2020-02-01"
-#'     )
-#'   ),
-#'   cohort_end_date = as.Date(
-#'     c(
-#'       "2020-01-01",
-#'       "2020-01-15",
-#'       "2020-01-20",
-#'       "2020-01-01",
-#'       "2020-02-01"
-#'     )
-#'   )
-#' )
-#'
-#' cohort2 <- dplyr::tibble(
-#'   cohort_definition_id = c(1, 1, 1, 1, 1, 1, 1),
-#'   subject_id = c(1, 1, 1, 2, 2, 2, 1),
-#'   cohort_start_date = as.Date(
-#'     c(
-#'       "2020-01-15",
-#'       "2020-01-25",
-#'       "2020-01-26",
-#'       "2020-01-29",
-#'       "2020-03-15",
-#'       "2020-01-24",
-#'       "2020-02-16"
-#'     )
-#'   ),
-#'   cohort_end_date = as.Date(
-#'     c(
-#'       "2020-01-15",
-#'       "2020-01-25",
-#'       "2020-01-26",
-#'       "2020-01-29",
-#'       "2020-03-15",
-#'       "2020-01-24",
-#'       "2020-02-16"
-#'     )
-#'   ),
-#' )
-#'
-#' cdm <- mockPatientProfiles(cohort1 = cohort1, cohort2 = cohort2)
-#'
-#' result <- cdm$cohort1 %>%
+#' cdm$cohort1 %>%
 #'   addCohortIntersectDays(
 #'     targetCohortTable = "cohort2"
-#'   ) %>%
-#'   dplyr::collect()
+#'   )
 #' }
 #'
 addCohortIntersectDays <- function(x,
-                                   cdm = attr(x, "cdm_reference"),
+                                   cdm = lifecycle::deprecated(),
                                    targetCohortTable,
                                    targetCohortId = NULL,
                                    indexDate = "cohort_start_date",
@@ -491,6 +319,10 @@ addCohortIntersectDays <- function(x,
                                    order = "first",
                                    window = c(0, Inf),
                                    nameStyle = "{cohort_name}_{window_name}") {
+  if (lifecycle::is_present(cdm)) {
+    lifecycle::deprecate_warn("0.6.0", "addCohortIntersectDays(cdm)")
+  }
+  cdm <- omopgenerics::cdmReference(x)
   checkCdm(cdm, tables = targetCohortTable)
   checkmate::assertNumeric(targetCohortId, any.missing = FALSE, null.ok = TRUE)
   parameters <- checkCohortNames(cdm[[targetCohortTable]], targetCohortId, targetCohortTable)
@@ -498,7 +330,6 @@ addCohortIntersectDays <- function(x,
 
   x <- x %>%
     addIntersect(
-      cdm = cdm,
       tableName = targetCohortTable,
       indexDate = indexDate,
       value = "days",
@@ -544,70 +375,16 @@ addCohortIntersectDays <- function(x,
 #'
 #' @examples
 #' \donttest{
-#' library(PatientProfiles)
-#' library(dplyr)
+#' cdm <- mockPatientProfiles()
 #'
-#' cohort1 <- dplyr::tibble(
-#'   cohort_definition_id = c(1, 1, 1, 1, 1),
-#'   subject_id = c(1, 1, 1, 2, 2),
-#'   cohort_start_date = as.Date(
-#'     c(
-#'       "2020-01-01",
-#'       "2020-01-15",
-#'       "2020-01-20",
-#'       "2020-01-01",
-#'       "2020-02-01"
-#'     )
-#'   ),
-#'   cohort_end_date = as.Date(
-#'     c(
-#'       "2020-01-01",
-#'       "2020-01-15",
-#'       "2020-01-20",
-#'       "2020-01-01",
-#'       "2020-02-01"
-#'     )
-#'   )
-#' )
-#'
-#' cohort2 <- dplyr::tibble(
-#'   cohort_definition_id = c(1, 1, 1, 1, 1, 1, 1),
-#'   subject_id = c(1, 1, 1, 2, 2, 2, 1),
-#'   cohort_start_date = as.Date(
-#'     c(
-#'       "2020-01-15",
-#'       "2020-01-25",
-#'       "2020-01-26",
-#'       "2020-01-29",
-#'       "2020-03-15",
-#'       "2020-01-24",
-#'       "2020-02-16"
-#'     )
-#'   ),
-#'   cohort_end_date = as.Date(
-#'     c(
-#'       "2020-01-15",
-#'       "2020-01-25",
-#'       "2020-01-26",
-#'       "2020-01-29",
-#'       "2020-03-15",
-#'       "2020-01-24",
-#'       "2020-02-16"
-#'     )
-#'   ),
-#' )
-#'
-#' cdm <- mockPatientProfiles(cohort1 = cohort1, cohort2 = cohort2)
-#'
-#' result <- cdm$cohort1 %>%
+#' cdm$cohort1 %>%
 #'   addCohortIntersectDate(
 #'     targetCohortTable = "cohort2"
-#'   ) %>%
-#'   dplyr::collect()
+#'   )
 #' }
 #'
 addCohortIntersectDate <- function(x,
-                                   cdm = attr(x, "cdm_reference"),
+                                   cdm = lifecycle::deprecated(),
                                    targetCohortTable,
                                    targetCohortId = NULL,
                                    indexDate = "cohort_start_date",
@@ -616,6 +393,10 @@ addCohortIntersectDate <- function(x,
                                    order = "first",
                                    window = c(0, Inf),
                                    nameStyle = "{cohort_name}_{window_name}") {
+  if (lifecycle::is_present(cdm)) {
+    lifecycle::deprecate_warn("0.6.0", "addCohortIntersectDate(cdm)")
+  }
+  cdm <- omopgenerics::cdmReference(x)
   checkCdm(cdm, tables = targetCohortTable)
   checkmate::assertNumeric(targetCohortId, any.missing = FALSE, null.ok = TRUE)
   parameters <- checkCohortNames(cdm[[targetCohortTable]], targetCohortId, targetCohortTable)
@@ -623,7 +404,6 @@ addCohortIntersectDate <- function(x,
 
   x <- x %>%
     addIntersect(
-      cdm = cdm,
       tableName = targetCohortTable,
       indexDate = indexDate,
       value = "date",

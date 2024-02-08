@@ -6,7 +6,7 @@
 \usage{
 addDateOfBirth(
   x,
-  cdm = attr(x, "cdm_reference"),
+  cdm = lifecycle::deprecated(),
   name = "date_of_birth",
   missingDay = 1,
   missingMonth = 1,
@@ -17,7 +17,7 @@ addDateOfBirth(
 \arguments{
 \item{x}{Table in the cdm that contains 'person_id' or 'subject_id'}
 
-\item{cdm}{'cdm' object created with CDMConnector::cdm_from_con().}
+\item{cdm}{A cdm_reference object.}
 
 \item{name}{Name of the column to be added with the date of birth}
 

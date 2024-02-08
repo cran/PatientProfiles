@@ -11,7 +11,7 @@
 
 <meta name="author" content="Martí Català, Mike Du, Yuchen Guo, Kim López-Güell, Xintong Li, Núria Mercadé-Besora, and Edward Burn" />
 
-<meta name="date" content="2023-11-21" />
+<meta name="date" content="2024-02-07" />
 
 <title>Get cohort intersections</title>
 
@@ -353,7 +353,7 @@ display: none;
 <h1 class="title toc-ignore">Get cohort intersections</h1>
 <h4 class="author">Martí Català, Mike Du, Yuchen Guo, Kim López-Güell,
 Xintong Li, Núria Mercadé-Besora, and Edward Burn</h4>
-<h4 class="date">2023-11-21</h4>
+<h4 class="date">2024-02-07</h4>
 
 </div>
 
@@ -437,7 +437,7 @@ intersection with a cohort in a time frame.</p>
 If we want to exclude patients from cohort1 who had a stroke event in
 the last 180 days before entering the cohort, we can use the
 <code>addCohortIntersectFlag()</code> like this:</p>
-<pre class="r"><code>cdm$cohort1WashOut &lt;- cdm$cohort1 %&gt;%
+<pre class="r"><code>cohort1WashOut &lt;- cdm$cohort1 %&gt;%
   addCohortIntersectFlag(
     targetCohortTable = &quot;cohort2&quot;,
     window = list(c(-180, -1)),
@@ -445,7 +445,7 @@ the last 180 days before entering the cohort, we can use the
   ) %&gt;%
   filter(cohort_1_m180_to_m1 == 0)
 
-cdm$cohort1WashOut %&gt;%
+cohort1WashOut %&gt;%
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 5
@@ -461,14 +461,14 @@ indicates the number of intersections in a certain time window.</p>
 event of interest in different time windows before entering the study
 population. For example, we can look at the number of strokes in the
 0-90 day, 90-365 day, and all prior history windows:</p>
-<pre class="r"><code>cdm$cohort1StrokeCounts &lt;- cdm$cohort1 %&gt;%
+<pre class="r"><code>cohort1StrokeCounts &lt;- cdm$cohort1 %&gt;%
   addCohortIntersectCount(
     targetCohortTable = &quot;cohort2&quot;,
     window = list(c(-Inf, -366), c(-365, -181), c(-180, -1)),
     targetCohortId = 1
   )
 
-cdm$cohort1StrokeCounts %&gt;%
+cohort1StrokeCounts %&gt;%
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 7
@@ -516,7 +516,7 @@ cohort2 &lt;- dplyr::tibble(
   cohort_start_date = c(
     as.Date(&quot;2010-03-03&quot;),
     as.Date(&quot;2010-02-27&quot;),
-    as.Date(&quot;2010-01-25&quot;),
+    as.Date(&quot;2010-03-25&quot;),
     as.Date(&quot;2013-01-03&quot;)
   ),
   cohort_end_date = c(
@@ -527,12 +527,21 @@ cohort2 &lt;- dplyr::tibble(
   )
 )
 
+observation_period &lt;- dplyr::tibble(
+  observation_period_id = 1:2,
+  person_id = c(1,2),
+  observation_period_start_date = as.Date(c(&quot;1990-01-01&quot;, &quot;1995-08-16&quot;)),
+  observation_period_end_date = as.Date(c(&quot;2025-01-01&quot;, &quot;2030-08-16&quot;)),
+  period_type_concept_id = 0
+)
+
 cdm &lt;- mockPatientProfiles(
+  observation_period = observation_period,
   cohort1 = cohort1,
   cohort2 = cohort2
 )
 
-cdm$cohort1 &lt;- cdm$cohort1 %&gt;% addCohortIntersectCount(cdm, targetCohortTable = &quot;cohort2&quot;, window = list(c(-30, -1)))
+cdm$cohort1 &lt;- cdm$cohort1 %&gt;% addCohortIntersectCount(targetCohortTable = &quot;cohort2&quot;, window = list(c(-30, -1)))
 cdm$cohort1</code></pre>
 <pre><code>## # Source:   table&lt;dbplyr_011&gt; [2 x 5]
 ## # Database: DuckDB 0.7.1 [martics@Windows 10 x64:R 4.2.1/:memory:]
@@ -541,12 +550,11 @@ cdm$cohort1</code></pre>
 ## 1                    1 1          2010-03-01        2015-01-01     
 ## 2                    1 2          2012-03-01        2016-03-01     
 ## # ℹ 1 more variable: cohort_1_m30_to_m1 &lt;dbl&gt;</code></pre>
-<p>We get two events for <code>subject_id = 1</code>, the one starting
+<p>We get one event for <code>subject_id = 1</code>, the one starting
 and ending on the <code>2010-02-27</code>, which is within the window
-before the index date <code>2010-03-01</code>; and the one starting in
-<code>2010-01-25</code> and ending on <code>2012-03-25</code>. The
-individual <code>subject_id = 2</code> does not have any of the
-intersecting events of interest.</p>
+before the index date <code>2010-03-01</code>. The individual
+<code>subject_id = 2</code> does not have any of the intersecting events
+of interest.</p>
 <p>Note that, with the specifications by default, we pick one event (the
 second one), which is not incident in the window of interest, but
 overlaps it. Indeed, as the event start date is before the index date in
@@ -555,7 +563,7 @@ intersecting.</p>
 <p>However, we could be interested in events starting in the window of
 interest. To only screen for those, we can set
 <code>targetEndDate = cohort_start_date</code>.</p>
-<pre class="r"><code>cdm$cohort1 &lt;- cdm$cohort1 %&gt;% addCohortIntersectCount(cdm, targetCohortTable = &quot;cohort2&quot;, window = list(c(-30, -1)), targetEndDate = &quot;cohort_start_date&quot;)
+<pre class="r"><code>cdm$cohort1 &lt;- cdm$cohort1 %&gt;% addCohortIntersectCount(targetCohortTable = &quot;cohort2&quot;, window = list(c(-30, -1)), targetEndDate = &quot;cohort_start_date&quot;)
 cdm$cohort1</code></pre>
 <pre><code>## # Source:   table&lt;dbplyr_014&gt; [2 x 5]
 ## # Database: DuckDB 0.7.1 [martics@Windows 10 x64:R 4.2.1/:memory:]
@@ -587,14 +595,14 @@ one in the time window (“order” argument).</p>
 <p>The function can be utilized to calculate the time to the event of
 interest, such as time until the first stroke after index date. If the
 patient did not experience the event, the function will return NA.</p>
-<pre class="r"><code>cdm$cohort1TimeTo &lt;- cdm$cohort1 %&gt;%
+<pre class="r"><code>cohort1TimeTo &lt;- cdm$cohort1 %&gt;%
   addCohortIntersectDays(
     targetCohortTable = &quot;cohort2&quot;,
     targetCohortId = 1,
     order = &quot;first&quot;
   )
 
-cdm$cohort1TimeTo %&gt;%
+cohort1TimeTo %&gt;%
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 6
@@ -604,7 +612,7 @@ cdm$cohort1TimeTo %&gt;%
 ## $ cohort_start_date    &lt;date&gt; 2010-03-01, 2012-03-01
 ## $ cohort_end_date      &lt;date&gt; 2015-01-01, 2016-03-01
 ## $ cohort_1_m30_to_m1   &lt;dbl&gt; 1, 0
-## $ cohort_1_0_to_inf    &lt;dbl&gt; 2, NA</code></pre>
+## $ cohort_1_0_to_inf    &lt;dbl&gt; 2, 308</code></pre>
 </div>
 <div id="example-addcohortintersectdate-function" class="section level2" number="1.4">
 <h2><span class="header-section-number">1.4</span> Example:
@@ -616,7 +624,7 @@ occurrence of a specific event. For instance, suppose cohort1 comprises
 patients who enrolled when they received their first vaccine dose. We
 could use this function to obtain the date of their second dose if we
 have a cohort with vaccine records (e.g. cohort2):</p>
-<pre class="r"><code>cdm$cohort1NextEvent &lt;- cdm$cohort1 %&gt;%
+<pre class="r"><code>cohort1NextEvent &lt;- cdm$cohort1 %&gt;%
   addCohortIntersectDate(
     targetCohortTable = &quot;cohort2&quot;,
     order = &quot;first&quot;,
@@ -624,7 +632,7 @@ have a cohort with vaccine records (e.g. cohort2):</p>
     window = c(1, Inf)
   )
 
-cdm$cohort1NextEvent %&gt;%
+cohort1NextEvent %&gt;%
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 6
@@ -634,7 +642,7 @@ cdm$cohort1NextEvent %&gt;%
 ## $ cohort_start_date    &lt;date&gt; 2010-03-01, 2012-03-01
 ## $ cohort_end_date      &lt;date&gt; 2015-01-01, 2016-03-01
 ## $ cohort_1_m30_to_m1   &lt;dbl&gt; 1, 0
-## $ cohort_1_1_to_inf    &lt;date&gt; 2010-03-03, NA</code></pre>
+## $ cohort_1_1_to_inf    &lt;date&gt; 2010-03-03, 2013-01-03</code></pre>
 <p>Please note that the new columns added to the table (for all function
 presented) will have the format cohort_“cohort_definition_id”_ “time
 window”. If the window number is negative, a “m” will be added in front
@@ -655,14 +663,14 @@ a target cohort. By default it will return output from
 if you want to append all the intersection information with this
 function. For information on what these function does, you can read
 above example.</p>
-<pre class="r"><code>cdm$cohort1CohortIntersect &lt;- cdm$cohort1 %&gt;%
+<pre class="r"><code>cohort1CohortIntersect &lt;- cdm$cohort1 %&gt;%
   addCohortIntersect(
     targetCohortTable = &quot;cohort2&quot;,
     order = &quot;first&quot;,
     targetCohortId = 1,
     window = c(1, Inf)
   )
-cdm$cohort1CohortIntersect %&gt;%
+cohort1CohortIntersect %&gt;%
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 9
@@ -672,15 +680,15 @@ cdm$cohort1CohortIntersect %&gt;%
 ## $ cohort_start_date       &lt;date&gt; 2010-03-01, 2012-03-01
 ## $ cohort_end_date         &lt;date&gt; 2015-01-01, 2016-03-01
 ## $ cohort_1_m30_to_m1      &lt;dbl&gt; 1, 0
-## $ count_cohort_1_1_to_inf &lt;dbl&gt; 2, 0
-## $ flag_cohort_1_1_to_inf  &lt;dbl&gt; 1, 0
-## $ date_cohort_1_1_to_inf  &lt;date&gt; 2010-01-25, NA
-## $ days_cohort_1_1_to_inf  &lt;dbl&gt; -35, NA</code></pre>
+## $ count_cohort_1_1_to_inf &lt;dbl&gt; 2, 1
+## $ flag_cohort_1_1_to_inf  &lt;dbl&gt; 1, 1
+## $ date_cohort_1_1_to_inf  &lt;date&gt; 2010-03-03, 2013-01-03
+## $ days_cohort_1_1_to_inf  &lt;dbl&gt; 2, 308</code></pre>
 <p>We can also control which columns to append to your data by using the
 flag, count, date and time options in the function, if we do not want
 everything. For example if we only want the cohort count and flag we can
 use below example.</p>
-<pre class="r"><code>cdm$cohort1CohortIntersect &lt;- cdm$cohort1 %&gt;%
+<pre class="r"><code>cohort1CohortIntersect &lt;- cdm$cohort1 %&gt;%
   addCohortIntersect(
     targetCohortTable = &quot;cohort2&quot;,
     order = &quot;first&quot;,
@@ -691,7 +699,7 @@ use below example.</p>
     date = FALSE,
     days = FALSE
   )
-cdm$cohort1CohortIntersect %&gt;%
+cohort1CohortIntersect %&gt;%
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 7
@@ -701,8 +709,8 @@ cdm$cohort1CohortIntersect %&gt;%
 ## $ cohort_start_date       &lt;date&gt; 2010-03-01, 2012-03-01
 ## $ cohort_end_date         &lt;date&gt; 2015-01-01, 2016-03-01
 ## $ cohort_1_m30_to_m1      &lt;dbl&gt; 1, 0
-## $ count_cohort_1_1_to_inf &lt;dbl&gt; 2, 0
-## $ flag_cohort_1_1_to_inf  &lt;dbl&gt; 1, 0</code></pre>
+## $ count_cohort_1_1_to_inf &lt;dbl&gt; 2, 1
+## $ flag_cohort_1_1_to_inf  &lt;dbl&gt; 1, 1</code></pre>
 </div>
 
 

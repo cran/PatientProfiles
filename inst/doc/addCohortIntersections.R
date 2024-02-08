@@ -35,7 +35,7 @@ cdm$cohort2 %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1WashOut <- cdm$cohort1 %>%
+cohort1WashOut <- cdm$cohort1 %>%
   addCohortIntersectFlag(
     targetCohortTable = "cohort2",
     window = list(c(-180, -1)),
@@ -43,18 +43,18 @@ cdm$cohort1WashOut <- cdm$cohort1 %>%
   ) %>%
   filter(cohort_1_m180_to_m1 == 0)
 
-cdm$cohort1WashOut %>%
+cohort1WashOut %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1StrokeCounts <- cdm$cohort1 %>%
+cohort1StrokeCounts <- cdm$cohort1 %>%
   addCohortIntersectCount(
     targetCohortTable = "cohort2",
     window = list(c(-Inf, -366), c(-365, -181), c(-180, -1)),
     targetCohortId = 1
   )
 
-cdm$cohort1StrokeCounts %>%
+cohort1StrokeCounts %>%
   glimpse()
 
 ## -----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ cohort2 <- dplyr::tibble(
   cohort_start_date = c(
     as.Date("2010-03-03"),
     as.Date("2010-02-27"),
-    as.Date("2010-01-25"),
+    as.Date("2010-03-25"),
     as.Date("2013-01-03")
   ),
   cohort_end_date = c(
@@ -90,31 +90,40 @@ cohort2 <- dplyr::tibble(
   )
 )
 
+observation_period <- dplyr::tibble(
+  observation_period_id = 1:2,
+  person_id = c(1,2),
+  observation_period_start_date = as.Date(c("1990-01-01", "1995-08-16")),
+  observation_period_end_date = as.Date(c("2025-01-01", "2030-08-16")),
+  period_type_concept_id = 0
+)
+
 cdm <- mockPatientProfiles(
+  observation_period = observation_period,
   cohort1 = cohort1,
   cohort2 = cohort2
 )
 
-cdm$cohort1 <- cdm$cohort1 %>% addCohortIntersectCount(cdm, targetCohortTable = "cohort2", window = list(c(-30, -1)))
+cdm$cohort1 <- cdm$cohort1 %>% addCohortIntersectCount(targetCohortTable = "cohort2", window = list(c(-30, -1)))
 cdm$cohort1
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1 <- cdm$cohort1 %>% addCohortIntersectCount(cdm, targetCohortTable = "cohort2", window = list(c(-30, -1)), targetEndDate = "cohort_start_date")
+cdm$cohort1 <- cdm$cohort1 %>% addCohortIntersectCount(targetCohortTable = "cohort2", window = list(c(-30, -1)), targetEndDate = "cohort_start_date")
 cdm$cohort1
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1TimeTo <- cdm$cohort1 %>%
+cohort1TimeTo <- cdm$cohort1 %>%
   addCohortIntersectDays(
     targetCohortTable = "cohort2",
     targetCohortId = 1,
     order = "first"
   )
 
-cdm$cohort1TimeTo %>%
+cohort1TimeTo %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1NextEvent <- cdm$cohort1 %>%
+cohort1NextEvent <- cdm$cohort1 %>%
   addCohortIntersectDate(
     targetCohortTable = "cohort2",
     order = "first",
@@ -122,22 +131,22 @@ cdm$cohort1NextEvent <- cdm$cohort1 %>%
     window = c(1, Inf)
   )
 
-cdm$cohort1NextEvent %>%
+cohort1NextEvent %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1CohortIntersect <- cdm$cohort1 %>%
+cohort1CohortIntersect <- cdm$cohort1 %>%
   addCohortIntersect(
     targetCohortTable = "cohort2",
     order = "first",
     targetCohortId = 1,
     window = c(1, Inf)
   )
-cdm$cohort1CohortIntersect %>%
+cohort1CohortIntersect %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1CohortIntersect <- cdm$cohort1 %>%
+cohort1CohortIntersect <- cdm$cohort1 %>%
   addCohortIntersect(
     targetCohortTable = "cohort2",
     order = "first",
@@ -148,6 +157,6 @@ cdm$cohort1CohortIntersect <- cdm$cohort1 %>%
     date = FALSE,
     days = FALSE
   )
-cdm$cohort1CohortIntersect %>%
+cohort1CohortIntersect %>%
   glimpse()
 

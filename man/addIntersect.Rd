@@ -6,7 +6,7 @@
 \usage{
 addIntersect(
   x,
-  cdm = attr(x, "cdm_reference"),
+  cdm = lifecycle::deprecated(),
   tableName,
   value,
   filterVariable = NULL,
@@ -15,8 +15,8 @@ addIntersect(
   window = list(c(0, Inf)),
   indexDate = "cohort_start_date",
   censorDate = NULL,
-  targetStartDate = getStartName(tableName),
-  targetEndDate = getEndName(tableName),
+  targetStartDate = startDateColumn(tableName),
+  targetEndDate = endDateColumn(tableName),
   order = "first",
   nameStyle = "{value}_{id_name}_{window_name}"
 )
@@ -24,8 +24,7 @@ addIntersect(
 \arguments{
 \item{x}{Table with individuals in the cdm}
 
-\item{cdm}{Object that contains a cdm reference. Use CDMConnector to obtain a
-cdm reference.}
+\item{cdm}{A cdm_reference object.}
 
 \item{tableName}{name of the cohort that we want to check for overlap}
 
