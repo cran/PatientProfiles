@@ -2,7 +2,7 @@ Package: PatientProfiles
 Type: Package
 Title: Identify Characteristics of Patients in the OMOP Common Data
         Model
-Version: 0.6.0
+Version: 0.6.1
 Authors@R: c(
     person("Marti", "Catala", , "marti.catalasabate@ndorms.ox.ac.uk", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0003-3308-9905")),
@@ -38,7 +38,7 @@ Depends: R (>= 2.10)
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 NeedsCompilation: no
-Packaged: 2024-02-07 20:16:33 UTC; martics
+Packaged: 2024-02-21 22:39:03 UTC; martics
 Author: Marti Catala [aut, cre] (<https://orcid.org/0000-0003-3308-9905>),
   Yuchen Guo [aut] (<https://orcid.org/0000-0002-0847-4855>),
   Mike Du [aut] (<https://orcid.org/0000-0002-9517-8834>),
@@ -47,4 +47,4 @@ Author: Marti Catala [aut, cre] (<https://orcid.org/0000-0003-3308-9905>),
   Nuria Mercade-Besora [ctb] (<https://orcid.org/0009-0006-7948-3747>),
   Xintong Li [ctb] (<https://orcid.org/0000-0002-6872-5804>)
 Repository: CRAN
-Date/Publication: 2024-02-08 17:40:06 UTC
+Date/Publication: 2024-02-21 23:30:07 UTC
