@@ -192,27 +192,21 @@ checkWindow <- function(window) {
           use it as both window start and window end")
   }
 
-  windowTbl <- dplyr::tibble(
-    lower = lapply(window, function(x) {
-      x[1]
-    }) %>% unlist(),
-    upper = lapply(window, function(x) {
-      x[2]
-    }) %>% unlist(),
-    window_name = getWindowNames(window) %>% unlist()
-  )
+  names(window) <- getWindowNames(window)
+  lower <- lapply(window, function(x) {x[1]}) %>% unlist()
+  upper <- lapply(window, function(x) {x[2]}) %>% unlist()
 
-  if (any(windowTbl$lower > windowTbl$upper)) {
+  if (any(lower > upper)) {
     cli::cli_abort("First element in window must be smaller or equal to the second one")
   }
-  if (any(is.infinite(windowTbl$lower) & windowTbl$lower == windowTbl$upper & sign(windowTbl$upper) == 1)) {
+  if (any(is.infinite(lower) & lower == upper & sign(upper) == 1)) {
     cli::cli_abort("Not both elements in the window can be +Inf")
   }
-  if (any(is.infinite(windowTbl$lower) & windowTbl$lower == windowTbl$upper & sign(windowTbl$upper) == -1)) {
+  if (any(is.infinite(lower) & lower == upper & sign(upper) == -1)) {
     cli::cli_abort("Not both elements in the window can be -Inf")
   }
 
-  invisible(windowTbl)
+  invisible(window)
 }
 
 #' @noRd
@@ -395,14 +389,7 @@ checkSnakeCase <- function(name, verbose = TRUE) {
 
 #' @noRd
 checkVariableType <- function(variableType) {
-  errorMessage <- "variableType must be a choice between numeric, date, binary and categorical."
-  if (!is.character(variableType) |
-    length(variableType) != 1) {
-    cli::cli_abort(errorMessage)
-  }
-  if (!(variableType %in% c("numeric", "date", "binary", "categorical"))) {
-    cli::cli_abort(errorMessage)
-  }
+  assertChoice(x = variableType, choices = formats$variable_type |> unique())
 }
 
 #' @noRd
@@ -420,91 +407,83 @@ checkTable <- function(table) {
 }
 
 #' @noRd
-checkStrata <- function(strata, table) {
-  errorMessage <- "strata should be a list that point to columns in table"
-  if (!is.list(strata)) {
+checkStrata <- function(list, table, type = "strata") {
+  errorMessage <- paste0(type, " should be a list that point to columns in table")
+  if (!is.list(list)) {
     cli::cli_abort(errorMessage)
   }
-  if (length(strata) > 0) {
-    if (!is.character(unlist(strata))) {
+  if (length(list) > 0) {
+    if (!is.character(unlist(list))) {
       cli::cli_abort(errorMessage)
     }
-    if (!all(unlist(strata) %in% colnames(table))) {
+    if (!all(unlist(list) %in% colnames(table))) {
       cli::cli_abort(errorMessage)
     }
   }
 }
 
 #' @noRd
-checkVariablesFunctions <- function(variables, functions, table) {
+checkVariablesFunctions <- function(variables, estimates, table) {
   errorMessage <- "variables should be a unique named list that point to columns in table"
-  if (!is.list(variables)) {
-    cli::cli_abort(errorMessage)
+  assertList(x = variables, class = "character")
+  assertList(x = estimates, class = "character")
+  if (length(variables) != length(estimates)) {
+    cli::cli_abort("Variables and estimates must have the same length")
   }
-  if (length(names(variables)) != length(variables)) {
-    cli::cli_abort(errorMessage)
-  }
-  if (!is.character(unlist(variables))) {
-    cli::cli_abort(errorMessage)
-  }
-  if (!all(unlist(variables) %in% colnames(table))) {
-    cli::cli_abort(errorMessage)
-  }
-  errorMessage <- "functions should be a unique named list that point to functions. Check suported functions using availableFunctions()."
-  if (!is.list(functions)) {
-    cli::cli_abort(errorMessage)
-  }
-  if (length(names(functions)) != length(functions)) {
-    cli::cli_abort(errorMessage)
-  }
-  if (!is.character(unlist(functions))) {
-    cli::cli_abort(errorMessage)
-  }
-  if (!all(unlist(functions) %in% unique(formats$format_key))) {
-    cli::cli_abort(errorMessage)
-  }
-  if (!identical(sort(names(variables)), sort(names(functions)))) {
-    cli::cli_abort("Names from variables and functions must be the same")
-  }
-  vt <- variableTypes(table)
-  requiredFunctions <- NULL
-  for (nam in names(variables)) {
-    requiredFunctions <- requiredFunctions %>%
-      dplyr::union_all(
-        tidyr::expand_grid(
-          variable = variables[[nam]],
-          format_key = functions[[nam]]
-        )
-      )
-  }
-  suportedFunctions <- vt %>%
-    dplyr::select("variable", "variable_type") %>%
-    dplyr::left_join(
-      formats %>%
-        dplyr::select("variable_type", "format_key"),
-      by = "variable_type",
-      relationship = "many-to-many"
-    )
-  nonSuportedFunctions <- requiredFunctions %>%
-    dplyr::anti_join(suportedFunctions, by = c("variable", "format_key"))
-  if (nrow(nonSuportedFunctions) > 0) {
-    nonSuportedFunctions <- nonSuportedFunctions %>%
-      dplyr::left_join(vt, by = "variable")
-    errorMessage <- "Non supported functions found."
-    vars <- unique(nonSuportedFunctions$variable)
-    for (v in vars) {
-      errorMessage <- paste0(
-        errorMessage, " '", v, "' is `",
-        vt$variable_type[vt$variable == v], "` and formats: ",
-        paste0(
-          nonSuportedFunctions$format_key[nonSuportedFunctions$variable == v],
-          collapse = ", "
-        ),
-        " are not suported."
-      )
+  if (!is.null(names(variables)) & !is.null(names(estimates))) {
+    if (!identical(sort(names(variables)), sort(names(estimates)))) {
+      cli::cli_abort("Names from variables and estimates must be the same")
     }
-    cli::cli_abort(errorMessage)
+    variables <- variables[order(names(variables))]
+    estimates <- estimates[order(names(estimates))]
   }
+
+  functions <- lapply(seq_along(variables), function(k){
+    tidyr::expand_grid(
+      variable_name = variables[[k]],
+      estimate_name = estimates[[k]]
+    )
+  }) |>
+    dplyr::bind_rows() |>
+    dplyr::inner_join(variableTypes(table), by = "variable_name") |>
+    dplyr::inner_join(
+      availableEstimates(fullQuantiles = TRUE) |>
+        dplyr::select(-"estimate_description"),
+      by = c("variable_type", "estimate_name")
+    )
+
+  # check binary
+  binaryVars <- functions |>
+    dplyr::filter(
+      .data$variable_type %in% c("numeric", "integer") &
+        .data$estimate_name %in% c("count", "percentage")
+    ) |>
+    dplyr::select("variable_name") |>
+    dplyr::distinct() |>
+    dplyr::pull()
+  if (length(binaryVars) > 0) {
+    notBinary <- character()
+    for (binVar in binaryVars) {
+      x <- table |>
+        dplyr::select(dplyr::all_of(binVar)) |>
+        dplyr::distinct() |>
+        dplyr::pull()
+      if (length(x) <= 3) {
+        if (!all(as.numeric(x) %in% c(0, 1, NA))) {
+          notBinary <- c(notBinary, binVar)
+        }
+      } else {
+        notBinary <- c(notBinary, binVar)
+      }
+    }
+    functions <- functions |>
+      dplyr::filter(
+        !.data$variable_name %in% .env$notBinary |
+          !.data$estimate_name %in% c("count", "percentage")
+      )
+  }
+
+  return(functions)
 }
 
 #' @noRd
@@ -537,19 +516,85 @@ checkSignificantDecimals <- function(significantDecimals) {
 checkTableIntersect <- function(tableIntersect, cdm) {
   checkmate::assertList(tableIntersect)
   arguments <- getArguments(addTableIntersect)
-  if (length(tableIntersect) > 0) {
-    if (!is.list(tableIntersect[[1]])) {
-      tableIntersect <- list(tableIntersect)
-    }
-  }
-  lapply(tableIntersect, function(x) {
-    checkmate::assertList(x, names = "named")
-    checkmate::assertTRUE(all(names(x) %in% c(arguments$all, "value")))
-    checkmate::assertTRUE(all(arguments$compulsory %in% names(x)))
-  })
+  tableIntersect <- assertInputIntersect(
+    inputList = tableIntersect,
+    possibleArguments = c(arguments$all, "value"),
+    compulsoryArguments = arguments$compulsory,
+    nameFunction = "tableIntersect",
+    cdm = cdm
+  )
+  tableIntersect <- editNamesIntersect(tableIntersect)
   return(tableIntersect)
 }
 
+assertInputIntersect <- function(inputList,
+                                 possibleArguments,
+                                 compulsoryArguments,
+                                 nameFunction,
+                                 cdm = NULL) {
+  if (length(inputList) > 0) {
+    if (!is.list(inputList[[1]])) {
+      inputList <- list(inputList)
+    }
+  }
+  lapply(inputList, function(x) {
+    if (!is.list(x) | length(names(x)) != length(x)) {
+      cli::cli_abort(
+        "inputs of {nameFunction} must be a named list, see examples."
+      )
+    }
+    allArgs <- names(x)
+    notValidArgs <- allArgs[!allArgs %in% possibleArguments]
+    if (length(notValidArgs) > 0) {
+      cli::cli_alert_danger(
+        "Not valid args for {nameFunction}: {paste0(notValidArgs, collapse = ', ')}."
+      )
+    }
+    notPresent <- compulsoryArguments[!compulsoryArguments %in% names(x)]
+    if (length(notPresent) > 0) {
+      cli::cli_abort(
+        "Required arguments not provided for {nameFunction}: {paste0(notPresent, collapse = ', ')}"
+      )
+    }
+    if (!is.null(cdm)) {
+      values <- c("count", "flag", "date", "days", colnames(cdm[[x$tableName]]))
+    } else {
+      values <- c("count", "flag", "date", "days")
+    }
+    val <- x$value[!x$value %in% values]
+    if (length(val) > 0) {
+      cli::cli_abort(
+        "Wrong value for {nameFunction}: {paste0(val, collapse = ', ')}. Possible values: {paste0(values, collapse = ', ')}"
+      )
+    }
+  })
+  return(inputList)
+}
+editNamesIntersect <- function(inputList) {
+  if (length(inputList) > 0) {
+    nms <- names(inputList)
+    if (is.null(nms)) {
+      nms <- rep("", length(nms))
+    }
+    for (k in seq_along(nms)) {
+      if (nms[k] == "") {
+        nams <- names(inputList[[k]])
+        if ("tableName" %in% nams) {
+          tblName <- inputList[[k]]$tableName
+        } else if ("conceptSet" %in% nams) {
+          tblName <- "Concepts"
+        } else {
+          tblName <- inputList[[k]]$targetCohortTable
+        }
+        value <- inputList[[k]]$value |> paste0(collapse = "+")
+        winName <- getWindowNames(inputList[[k]]$window) |> paste0(collapse = "+")
+        nms[k] <- paste(tblName, value, winName)
+      }
+    }
+    names(inputList) <- nms
+  }
+  return(inputList)
+}
 getArguments <- function(fun) {
   arguments <- formals(fun)
   compulsory <- character()
@@ -567,34 +612,28 @@ getArguments <- function(fun) {
 #' @noRd
 checkCohortIntersect <- function(cohortIntersect, cdm) {
   checkmate::assertList(cohortIntersect)
-  arguments <- getArguments(addCohortIntersect)
-  if (length(cohortIntersect) > 0) {
-    if (!is.list(cohortIntersect[[1]])) {
-      cohortIntersect <- list(cohortIntersect)
-    }
-  }
-  lapply(cohortIntersect, function(x) {
-    checkmate::assertList(x, names = "named")
-    checkmate::assertTRUE(all(names(x) %in% c(arguments$all, "value")))
-    checkmate::assertTRUE(all(arguments$compulsory %in% names(x)))
-  })
+  arguments <- getArguments(.addCohortIntersect)
+  cohortIntersect <- assertInputIntersect(
+    inputList = cohortIntersect,
+    possibleArguments = c(arguments$all, "value"),
+    compulsoryArguments = arguments$compulsory,
+    nameFunction = "cohortIntersect"
+  )
+  cohortIntersect <- editNamesIntersect(cohortIntersect)
   return(cohortIntersect)
 }
 
 #' @noRd
 checkConceptIntersect <- function(conceptIntersect, cdm) {
-  checkmate::assertList(conceptIntersect, names = "named")
-  arguments <- getArguments(addConceptIntersect)
-  if (length(conceptIntersect) > 0) {
-    if (!identical(lapply(conceptIntersect, class) |> unlist() |> unname() |> unique(), "list")) {
-      conceptIntersect <- list(conceptIntersect)
-    }
-  }
-  lapply(conceptIntersect, function(x) {
-    checkmate::assertList(x, names = "named")
-    checkmate::assertTRUE(all(names(x) %in% c(arguments$all, "value")))
-    checkmate::assertTRUE(all(arguments$compulsory %in% names(x)))
-  })
+  checkmate::assertList(conceptIntersect)
+  arguments <- getArguments(.addConceptIntersect)
+  conceptIntersect <- assertInputIntersect(
+    inputList = conceptIntersect,
+    possibleArguments = c(arguments$all, "value"),
+    compulsoryArguments = arguments$compulsory,
+    nameFunction = "conceptIntersect"
+  )
+  conceptIntersect <- editNamesIntersect(conceptIntersect)
   return(conceptIntersect)
 }
 
@@ -620,4 +659,508 @@ checkOtherVariables <- function(otherVariables, cohort, call = rlang::env_parent
     cli::cli_abort(errorMessage, call = call)
   }
   invisible(otherVariables)
+}
+
+assertClass <- function(x,
+                        class,
+                        null = FALSE,
+                        call = parent.frame()) {
+  # create error message
+  errorMessage <- paste0(
+    paste0(substitute(x), collapse = ""), " must have class: ",
+    paste0(class, collapse = ", "), "; but has class: ",
+    paste0(base::class(x), collapse = ", ") ,"."
+  )
+  if (is.null(x)) {
+    if (null) {
+      return(invisible(x))
+    } else {
+      cli::cli_abort(
+        "{paste0(substitute(x), collapse = '')} can not be NULL.", call = call
+      )
+    }
+  }
+  if (!all(class %in% base::class(x))) {
+    cli::cli_abort(errorMessage, call = call)
+  }
+  invisible(x)
+}
+
+correctStrata <- function(strata, overall) {
+  if (length(strata) == 0 | overall) {
+    strata = c(list(character()), strata)
+  }
+  strata <- unique(strata)
+  return(strata)
+}
+
+#' Assert whether a nameStyle contains the needed information.
+#'
+#' @param nameStyle nameStyle object to check.
+#' @param values Parameters options that must be contained.
+#' @param call An environment for cli functions.
+#'
+#' @return An error if nameStyle is not properly formatted.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' assertNameStyle("my_name", values = list(
+#'   "variable1" = 1, "variable2" = c("a", "b", "c")
+#' ))
+#'
+#' assertNameStyle("my_name_{variable2}", values = list(
+#'   "variable1" = 1, "variable2" = c("a", "b", "c")
+#' ))
+#'
+#' assertNameStyle("my_name_{variable2}", values = list(
+#'   "variable1" = c(1, 2), "variable2" = c("a", "b", "c")
+#' ))
+#'
+#' assertNameStyle("my_name_{variable1}_{variable2}", values = list(
+#'   "variable1" = c(1, 2), "variable2" = c("a", "b", "c")
+#' ))
+#' }
+#'
+assertNameStyle <- function(nameStyle,
+                            values = list(),
+                            call = parent.frame()) {
+  # initial checks
+  checkmate::assertCharacter(nameStyle, len = 1, any.missing = FALSE, min.chars = 1)
+  checkmate::assertList(values, names = "named")
+  checkmate::assertClass(call, "environment")
+
+  # check name style
+  err <- character()
+  for (k in seq_along(values)) {
+    valk <- values[[k]]
+    nm <- paste0("\\{", names(values)[k], "\\}")
+    if (length(valk) > 1 & !grepl(pattern = nm, x = nameStyle)) {
+      err <- c(err, paste0("{{", names(values)[k], "}}"))
+    }
+  }
+
+  # error
+  if (length(err) > 0) {
+    names(err) <- rep("*", length(err))
+    cli::cli_abort(
+      message = c("The following elements are not present in nameStyle:", err),
+      call = call
+    )
+  }
+
+  return(invisible(nameStyle))
+}
+
+warnOverwriteColumns <- function(x, nameStyle, values = list()) {
+  if (length(values) > 0) {
+    nameStyle <- tidyr::expand_grid(!!!values) |>
+      dplyr::mutate("tmp_12345" = glue::glue(.env$nameStyle)) |>
+      dplyr::pull("tmp_12345") |>
+      as.character() |>
+      unique()
+  }
+
+  extraColumns <- colnames(x)[colnames(x) %in% nameStyle]
+  if (length(extraColumns) > 0) {
+    ms <- extraColumns
+    names(ms) <- rep("*", length(ms))
+    cli::cli_inform(message = c(
+      "!" = "The following columns will be overwritten:", ms
+    ))
+    x <- x |> dplyr::select(!dplyr::all_of(extraColumns))
+  }
+
+  return(x)
+}
+assertCharacter <- function(x,
+                            length = NULL,
+                            na = FALSE,
+                            null = FALSE,
+                            named = FALSE,
+                            minNumCharacter = 0,
+                            call = parent.frame()) {
+  # create error message
+  errorMessage <- paste0(
+    paste0(substitute(x), collapse = ""),
+    " must be a character",
+    errorLength(length),
+    errorNa(na),
+    errorNull(null),
+    errorNamed(named),
+    ifelse(
+      minNumCharacter > 0,
+      paste("; at least", minNumCharacter, "per element"),
+      ""
+    ),
+    "."
+  )
+
+  # assert null
+  if (assertNull(x, null, errorMessage, call)) {
+
+    # assert class
+    if (!is.character(x)) {
+      cli::cli_abort(errorMessage, call = call)
+    }
+
+    # no NA vector
+    xNoNa <- x[!is.na(x)]
+
+    # assert length
+    assertLength(x, length, errorMessage, call)
+
+    # assert na
+    assertNa(x, na, errorMessage, call)
+
+    # assert named
+    assertNamed(x, named, errorMessage, call)
+
+    # minimum number of characters
+    if (any(nchar(xNoNa) < minNumCharacter)) {
+      cli::cli_abort(errorMessage, call = call)
+    }
+  }
+
+  return(invisible(x))
+}
+assertList <- function(x,
+                       length = NULL,
+                       na = FALSE,
+                       null = FALSE,
+                       named = FALSE,
+                       class = NULL,
+                       call = parent.frame()) {
+  # create error message
+  errorMessage <- paste0(
+    paste0(substitute(x), collapse = ""),
+    " must be a list",
+    errorLength(length),
+    errorNa(na),
+    errorNull(null),
+    errorNamed(named),
+    ifelse(
+      !is.null(class),
+      paste("; elements must have class:", paste0(class, collapse = ", ")),
+      ""
+    ),
+    "."
+  )
+
+  # assert null
+  if (assertNull(x, null, errorMessage, call)) {
+
+    # assert class
+    if (!is.list(x)) {
+      cli::cli_abort(errorMessage, call = call)
+    }
+
+    # no NA vector
+    xNoNa <- x[!is.na(x)]
+
+    # assert length
+    assertLength(x, length, errorMessage, call)
+
+    # assert na
+    assertNa(x, na, errorMessage, call)
+
+    # assert named
+    assertNamed(x, named, errorMessage, call)
+
+    # assert class
+    if (!is.null(class)) {
+      flag <- lapply(xNoNa, function(y) {
+        any(class %in% base::class(y))
+      }) |>
+        unlist() |>
+        all()
+      if (flag != TRUE) {
+        cli::cli_abort(errorMessage, call = call)
+      }
+    }
+  }
+
+  return(invisible(x))
+}
+assertChoice <- function(x,
+                         choices,
+                         length = NULL,
+                         na = FALSE,
+                         null = FALSE,
+                         named = FALSE,
+                         call = parent.frame()) {
+  # create error message
+  errorMessage <- paste0(
+    paste0(substitute(x), collapse = ""),
+    " must be a choice between: ",
+    paste0(choices, collapse = ", "),
+    errorLength(length),
+    errorNa(na),
+    errorNull(null),
+    errorNamed(named),
+    "."
+  )
+
+  # assert null
+  if (assertNull(x, null, errorMessage, call)) {
+
+    # assert class
+    if (!all(class(x) == class(choices))) {
+      cli::cli_abort(errorMessage, call = call)
+    }
+
+    # no NA vector
+    xNoNa <- x[!is.na(x)]
+
+    # assert length
+    assertLength(x, length, errorMessage, call)
+
+    # assert na
+    assertNa(x, na, errorMessage, call)
+
+    # assert named
+    assertNamed(x, named, errorMessage, call)
+
+    # assert choices
+    if (base::length(xNoNa) > 0) {
+      if (!all(xNoNa %in% choices)) {
+        cli::cli_abort(errorMessage, call = call)
+      }
+    }
+  }
+
+  return(invisible(x))
+}
+assertLogical <- function(x,
+                          length = NULL,
+                          na = FALSE,
+                          null = FALSE,
+                          named = FALSE,
+                          call = parent.frame()) {
+  # create error message
+  errorMessage <- paste0(
+    paste0(substitute(x), collapse = ""),
+    " must be a logical",
+    errorLength(length),
+    errorNa(na),
+    errorNull(null),
+    errorNamed(named),
+    "."
+  )
+
+  # assert null
+  if (assertNull(x, null, errorMessage, call)) {
+    # assert class
+    if (!is.logical(x)) {
+      cli::cli_abort(errorMessage, call = call)
+    }
+
+    # assert length
+    assertLength(x, length, errorMessage, call)
+
+    # assert na
+    assertNa(x, na, errorMessage, call)
+
+    # assert named
+    assertNamed(x, named, errorMessage, call)
+  }
+
+  return(invisible(x))
+}
+assertNumeric <- function(x,
+                          integerish = FALSE,
+                          min = -Inf,
+                          max = Inf,
+                          length = NULL,
+                          na = FALSE,
+                          null = FALSE,
+                          named = FALSE,
+                          call = parent.frame()) {
+  # create error message
+  errorMessage <- paste0(
+    paste0(substitute(x), collapse = ""),
+    " must be a numeric",
+    ifelse(integerish, "; it has to be integerish", ""),
+    ifelse(is.infinite(min), "", paste0("; greater than", min)),
+    ifelse(is.infinite(max), "", paste0("; smaller than", max)),
+    errorLength(length),
+    errorNa(na),
+    errorNull(null),
+    errorNamed(named),
+    "."
+  )
+
+  # assert null
+  if (assertNull(x, null, errorMessage, call)) {
+
+    # assert class
+    if (!is.numeric(x)) {
+      cli::cli_abort(errorMessage, call = call)
+    }
+
+    # no NA vector
+    xNoNa <- x[!is.na(x)]
+
+    # assert integerish
+    if (integerish & base::length(xNoNa) > 0) {
+      err <- max(abs(xNoNa - round(xNoNa)))
+      if (err > 0.0001) {
+        cli::cli_abort(errorMessage, call = call)
+      }
+    }
+
+    # assert lower bound
+    if (!is.infinite(min) & base::length(xNoNa) > 0) {
+      if (base::min(xNoNa) < min) {
+        cli::cli_abort(errorMessage, call = call)
+      }
+    }
+
+    # assert upper bound
+    if (!is.infinite(max) & base::length(xNoNa) > 0) {
+      if (base::max(xNoNa) > max) {
+        cli::cli_abort(errorMessage, call = call)
+      }
+    }
+
+    # assert length
+    assertLength(x, length, errorMessage, call)
+
+    # assert na
+    assertNa(x, na, errorMessage, call)
+
+    # assert named
+    assertNamed(x, named, errorMessage, call)
+  }
+
+  return(invisible(x))
+}
+assertTibble <- function(x,
+                         numberColumns = NULL,
+                         numberRows = NULL,
+                         columns = NULL,
+                         null = FALSE,
+                         call = parent.frame()) {
+  # create error message
+  errorMessage <- paste0(
+    paste0(substitute(x), collapse = ""),
+    " must be a tibble",
+    ifelse(is.null(numberColumns), "", paste0("; with at least ", numberColumns, " columns")),
+    ifelse(is.null(numberRows), "", paste0("; with at least ", numberRows, " rows")),
+    ifelse(is.null(columns), "", paste0("; the following columns must be present: ", paste0(columns, collapse = ", "))),
+    errorNull(null),
+    "."
+  )
+
+  # assert null
+  if (assertNull(x, null, errorMessage, call)) {
+    # assert class
+    if (!("tbl" %in% class(x))) {
+      cli::cli_abort(errorMessage, call = call)
+    }
+
+    # assert numberColumns
+    if (!is.null(numberColumns)) {
+      if (length(x) != numberColumns) {
+        cli::cli_abort(errorMessage, call = call)
+      }
+    }
+
+    # assert numberRows
+    if (!is.null(numberRows)) {
+      if (nrow(x) != numberRows) {
+        cli::cli_abort(errorMessage, call = call)
+      }
+    }
+
+    # assert columns
+    if (!is.null(columns)) {
+      if (!all(columns %in% colnames(x))) {
+        cli::cli_abort(errorMessage, call = call)
+      }
+    }
+  }
+
+  return(invisible(x))
+}
+assertClass <- function(x,
+                        class,
+                        null = FALSE,
+                        call = parent.frame()) {
+  # create error message
+  errorMessage <- paste0(
+    paste0(substitute(x), collapse = ""), " must have class: ",
+    paste0(class, collapse = ", "), "; but has class: ",
+    paste0(base::class(x), collapse = ", ") ,"."
+  )
+  if (is.null(x)) {
+    if (null) {
+      return(invisible(x))
+    } else {
+      cli::cli_abort(
+        "{paste0(substitute(x), collapse = '')} can not be NULL.", call = call
+      )
+    }
+  }
+  if (!all(class %in% base::class(x))) {
+    cli::cli_abort(errorMessage, call = call)
+  }
+  invisible(x)
+}
+assertLength <- function(x, length, errorMessage, call) {
+  if (!is.null(length) && base::length(x) != length) {
+    cli::cli_abort(errorMessage, call = call)
+  }
+  invisible(x)
+}
+errorLength <- function(length) {
+  if (!is.null(length)) {
+    str <- paste0("; with length = ", length)
+  } else {
+    str <- ""
+  }
+  return(str)
+}
+assertNa <- function(x, na, errorMessage, call) {
+  if (!na && any(is.na(x))) {
+    cli::cli_abort(errorMessage, call = call)
+  }
+  invisible(x)
+}
+errorNa <- function(na) {
+  if (na) {
+    str <- ""
+  } else {
+    str <- "; it can not contain NA"
+  }
+  return(str)
+}
+assertNamed <- function(x, named, errorMessage, call) {
+  if (named && length(names(x)[names(x) != ""]) != length(x)) {
+    cli::cli_abort(errorMessage, call = call)
+  }
+  invisible(x)
+}
+errorNamed <- function(named) {
+  if (named) {
+    str <- "; it has to be named"
+  } else {
+    str <- ""
+  }
+  return(str)
+}
+assertNull <- function(x, null, errorMessage, call) {
+  if (!null && is.null(x)) {
+    cli::cli_abort(errorMessage, call = call)
+  }
+  return(!is.null(x))
+}
+errorNull <- function(null) {
+  if (null) {
+    str <- ""
+  } else {
+    str <- "; it can not be NULL"
+  }
+  return(str)
 }

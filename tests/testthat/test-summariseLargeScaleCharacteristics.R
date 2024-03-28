@@ -1,4 +1,5 @@
 test_that("basic functionality summarise large scale characteristics", {
+  skip_on_cran()
   person <- dplyr::tibble(
     person_id = c(1, 2),
     gender_concept_id = c(8507, 8532),
@@ -97,11 +98,11 @@ test_that("basic functionality summarise large scale characteristics", {
   cohortName <- rep(c("cohort_1"), 6)
   count <- c(NA, 2, NA, 1, NA, 2)
   den <- c(3, 3, 3, 3, 3, 3)
-  percentage <- as.character(100 * count / den)
+  percentage <- as.character(round((100 * count / den),2))
   for (k in seq_along(conceptId)) {
     r <- result %>%
       dplyr::filter(
-        .data$concept == .env$conceptId[k] &
+        .data$concept_id == .env$conceptId[k] &
           .data$variable_level == .env$windowName[k] &
           .data$group_level == .env$cohortName[k]
       )
@@ -127,11 +128,11 @@ test_that("basic functionality summarise large scale characteristics", {
   cohortName <- rep(c("cohort_1"), 6)
   count <- c(1, 2, 1, 1, 2, 2)
   den <- c(3, 3, 3, 3, 3, 3)
-  percentage <- as.character(100 * count / den)
+  percentage <- as.character(round(100 * count / den, 2))
   for (k in seq_along(conceptId)) {
     r <- result %>%
       dplyr::filter(
-        .data$concept == .env$conceptId[k] &
+        .data$concept_id == .env$conceptId[k] &
           .data$variable_level == .env$windowName[k] &
           .data$group_level == .env$cohortName[k]
       )
@@ -169,11 +170,11 @@ test_that("basic functionality summarise large scale characteristics", {
   cohortName <- rep(c("cohort_1"), 6)
   count <- c(NA, 1, 1, NA, NA, NA)
   den <- c(1, 1, 1, 1, 1, 1)
-  percentage <- as.character(100 * count / den)
+  percentage <- as.character(round(100 * count / den, 2))
   for (k in seq_along(conceptId)) {
     r <- result %>%
       dplyr::filter(
-        .data$concept == .env$conceptId[k] &
+        .data$concept_id == .env$conceptId[k] &
           .data$variable_level == .env$windowName[k] &
           .data$group_level == .env$cohortName[k]
       )
@@ -200,6 +201,7 @@ test_that("basic functionality summarise large scale characteristics", {
 })
 
 test_that("basic functionality add large scale characteristics", {
+  skip_on_cran()
   person <- dplyr::tibble(
     person_id = c(1, 2),
     gender_concept_id = c(8507, 8532),
@@ -373,4 +375,3 @@ test_that("basic functionality add large scale characteristics", {
   )
   expect_false(any(cols %in% colnames(result4)))
 })
-
