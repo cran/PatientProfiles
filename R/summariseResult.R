@@ -1,4 +1,4 @@
-# Copyright 2023 DARWIN EU (C)
+# Copyright 2024 DARWIN EU (C)
 #
 # This file is part of PatientProfiles
 #
@@ -30,7 +30,6 @@
 #' set of variables.
 #' @param functions deprecated.
 #' @param counts Whether to compute number of records and number of subjects.
-#' @param verbose Whether to print progress.
 #'
 #' @return A summarised_result object with the summarised data of interest.
 #'
@@ -57,8 +56,7 @@ summariseResult <- function(table,
                             variables = NULL,
                             functions = lifecycle::deprecated(),
                             estimates = c("min", "q25", "median", "q75", "max", "count", "percentage"),
-                            counts = TRUE,
-                            verbose = TRUE) {
+                            counts = TRUE) {
   if (lifecycle::is_present(functions)) {
     lifecycle::deprecate_warn(
       when = "0.7.0",
@@ -128,21 +126,14 @@ summariseResult <- function(table,
     checkStrata(strata, table)
     functions <- checkVariablesFunctions(variables, estimates, table)
 
-    if (nrow(functions) == 0) {
-      cli::cli_alert_warning(
-        "No estimate can be computed with the current arguments, check `availableEstimates()` for the estimates that this function supports"
-      )
-      return(omopgenerics::emptySummarisedResult())
-    } else if (verbose) {
-      mes <- c("i" = "The following estimates will be computed:")
-      variables <- functions$variable_name |> unique()
-      for (vark in variables) {
-        mes <- c(mes, "*" = paste0(
-          vark, ": ", paste0(functions$estimate_name[functions$variable_name == vark], collapse = ", ")
-        ))
-      }
-      cli::cli_inform(message = mes)
+    mes <- c("i" = "The following estimates will be computed:")
+    variables <- functions$variable_name |> unique()
+    for (vark in variables) {
+      mes <- c(mes, "*" = paste0(
+        vark, ": ", paste0(functions$estimate_name[functions$variable_name == vark], collapse = ", ")
+      ))
     }
+    cli::cli_inform(message = mes)
 
     # only required variables
     colOrder <- colnames(table)
@@ -157,6 +148,10 @@ summariseResult <- function(table,
       dplyr::filter(grepl("q", .data$estimate_name)) %>%
       nrow() > 0
     if (collectFlag) {
+      cli::cli_inform(c(
+        "!" = "Table is collected to memory as not all requested estimates are
+        supported on the database side"
+      ))
       table <- table %>% dplyr::collect()
     }
 
@@ -175,15 +170,14 @@ summariseResult <- function(table,
     group <- correctStrata(group, includeOverallGroup)
     strata <- correctStrata(strata, includeOverallStrata)
 
-    if (verbose) {
-      cli::cli_alert("Start summary of data, at {Sys.time()}")
-      nt <- length(group) * length(strata)
-      k <- 0
-      cli::cli_progress_bar(
-        total = nt,
-        format = "{cli::pb_bar}{k}/{nt} group-strata combinations @ {Sys.time()}"
-      )
-    }
+    cli::cli_alert("Start summary of data, at {Sys.time()}")
+    nt <- length(group) * length(strata)
+    k <- 0
+    cli::cli_progress_bar(
+      total = nt,
+      format = "{cli::pb_bar}{k}/{nt} group-strata combinations @ {Sys.time()}"
+    )
+
     resultk <- 1
     result <- list()
     for (groupk in group) {
@@ -194,16 +188,12 @@ summariseResult <- function(table,
           # order variables
           orderVariables(colOrder, unique(unlist(estimates)))
         resultk <- resultk + 1
-        if (verbose) {
-          k <- k + 1
-          cli::cli_progress_update()
-        }
+        k <- k + 1
+        cli::cli_progress_update()
       }
     }
     result <- result |> dplyr::bind_rows()
-    if (verbose) {
-      cli::cli_inform(c("v" = "Summary finished, at {Sys.time()}"))
-    }
+    cli::cli_inform(c("v" = "Summary finished, at {Sys.time()}"))
   }
 
   # TO REMOVE
@@ -231,16 +221,37 @@ summariseInternal <- function(table, groupk, stratak, functions, counts) {
 
   # group by relevant variables
   strataGroupk <- unique(c(groupk, stratak))
-  strataGroup <- table |>
-    dplyr::select(dplyr::all_of(strataGroupk)) |>
-    dplyr::distinct() |>
-    dplyr::mutate("strata_id" = dplyr::row_number())
-  if (strataGroup |> dplyr::ungroup() |> dplyr::tally() |> dplyr::pull() == 1) {
+
+  if (length(strataGroupk) == 0) {
     table <- table |>
       dplyr::mutate("strata_id" = as.integer(1))
+    strataGroup <- dplyr::tibble(
+      "strata_id" = as.integer(1),
+      "group_name" = "overall",
+      "group_level" = "overall",
+      "strata_name" = "overall",
+      "strata_level" = "overall"
+    )
   } else {
-    table <- table |>
-      dplyr::inner_join(strataGroup, by = strataGroupk)
+    strataGroup <- table |>
+      dplyr::select(dplyr::all_of(strataGroupk)) |>
+      dplyr::distinct() |>
+      dplyr::mutate("strata_id" = dplyr::row_number())
+    if (strataGroup |> dplyr::ungroup() |> dplyr::tally() |> dplyr::pull() == 1) {
+      table <- table |>
+        dplyr::mutate("strata_id" = as.integer(1))
+    } else {
+      table <- table |>
+        dplyr::inner_join(strataGroup, by = strataGroupk)
+    }
+    # format group strata
+    strataGroup <- strataGroup |>
+      dplyr::collect() |>
+      visOmopResults::uniteGroup(cols = groupk, keep = TRUE) |>
+      visOmopResults::uniteStrata(cols = stratak, keep = TRUE) |>
+      dplyr::select(
+        "strata_id", "group_name", "group_level", "strata_name", "strata_level"
+      )
   }
   table <- table |>
     dplyr::select(dplyr::any_of(c(
@@ -265,14 +276,6 @@ summariseInternal <- function(table, groupk, stratak, functions, counts) {
   # summariseMissings
   result$missings <- summariseMissings(table, functions)
 
-  # format group strata
-  strataGroup <- strataGroup |>
-    dplyr::collect() |>
-    visOmopResults::uniteGroup(cols = groupk, keep = TRUE) |>
-    visOmopResults::uniteStrata(cols = stratak, keep = TRUE) |>
-    dplyr::select(
-      "strata_id", "group_name", "group_level", "strata_name", "strata_level"
-    )
   result <- result |>
     dplyr::bind_rows() |>
     dplyr::inner_join(strataGroup, by = "strata_id") |>
@@ -350,12 +353,16 @@ summariseNumeric <- function(table, functions) {
         dplyr::summarise(
           dplyr::across(
             .cols = dplyr::all_of(varEst),
-            .fns = getFunctions(est),
+            .fns = !!getFunctions(est),
             .names = "estimate_{.col}"
           ),
           .groups = "drop"
         ) |>
         dplyr::collect() |>
+        dplyr::mutate(dplyr::across(
+          .cols = dplyr::all_of(paste0("estimate_", varEst)),
+          .fns = as.numeric
+        )) |>
         tidyr::pivot_longer(
           cols = dplyr::all_of(paste0("estimate_", varEst)),
           names_to = "variable_name",
@@ -376,12 +383,16 @@ summariseNumeric <- function(table, functions) {
         dplyr::summarise(
           dplyr::across(
             .cols = dplyr::all_of(vark),
-            .fns = getFunctions(estVar),
+            .fns = !!getFunctions(estVar),
             .names = "variable_{.fn}"
           ),
           .groups = "drop"
         ) |>
         dplyr::collect() |>
+        dplyr::mutate(dplyr::across(
+          .cols = dplyr::all_of(paste0("variable_", estVar)),
+          .fns = as.numeric
+        )) |>
         tidyr::pivot_longer(
           cols = dplyr::all_of(paste0("variable_", estVar)),
           names_to = "estimate_name",
@@ -427,7 +438,11 @@ summariseBinary <- function(table, functions) {
         ~ sum(.x, na.rm = TRUE),
         .names = "counts_{.col}"
       )) |>
-      dplyr::collect()
+      dplyr::collect() |>
+      dplyr::mutate(dplyr::across(
+        .cols = dplyr::all_of(paste0("counts_", binNum)),
+        .fns = as.numeric
+      ))
     binDen <- binFuns |>
       dplyr::filter(.data$estimate_name == "percentage") |>
       dplyr::pull("variable_name")
@@ -449,7 +464,11 @@ summariseBinary <- function(table, functions) {
           ~ sum(as.integer(!is.na(.x)), na.rm = TRUE),
           .names = "den_{.col}"
         )) |>
-        dplyr::collect()
+        dplyr::collect() |>
+        dplyr::mutate(dplyr::across(
+          .cols = dplyr::all_of(paste0("den_", binDen)),
+          .fns = as.numeric
+        ))
       percentages <- num |>
         tidyr::pivot_longer(
           cols = dplyr::all_of(paste0("counts_", binNum)),
@@ -559,6 +578,10 @@ summariseMissings <- function(table, functions) {
         "den" = dplyr::n()
       ) |>
       dplyr::collect() |>
+      dplyr::mutate(dplyr::across(
+        .cols = dplyr::all_of(c("den", paste0("cm_", mVars))),
+        .fns = as.numeric
+      )) |>
       tidyr::pivot_longer(
         cols = dplyr::all_of(paste0("cm_", mVars)),
         names_to = "variable_name",
@@ -589,6 +612,9 @@ summariseMissings <- function(table, functions) {
 }
 
 orderVariables <- function(res, cols, est) {
+  if (length(est) == 0) {
+    return(res)
+  }
   orderVars <- dplyr::tibble("variable_name" = c(
     "number_records", "number_subjects", cols
   )) |>

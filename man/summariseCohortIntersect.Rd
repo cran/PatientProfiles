@@ -4,7 +4,7 @@
 \alias{summariseCohortIntersect}
 \title{Summarise cohort intersection information}
 \usage{
-summariseCohortIntersect(cohort, cohortIntersect = list(), strata = list())
+summariseCohortIntersect(cohort, cohortIntersect, strata = list())
 }
 \arguments{
 \item{cohort}{A cohort in the cdm.}
@@ -17,7 +17,7 @@ summariseCohortIntersect(cohort, cohortIntersect = list(), strata = list())
 A summary of the cohort intersection informations.
 }
 \description{
-Summarise cohort intersection information
+`r lifecycle::badge("deprecated")`
 }
 \examples{
 \donttest{

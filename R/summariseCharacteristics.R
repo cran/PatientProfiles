@@ -1,4 +1,4 @@
-# Copyright 2022 DARWIN EU (C)
+# Copyright 2024 DARWIN EU (C)
 #
 # This file is part of PatientProfiles
 #
@@ -15,6 +15,8 @@
 # limitations under the License.
 
 #' Summarise characteristics of individuals
+#'
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param cohort A cohort in the cdm.
 #' @param cdm A cdm reference.
@@ -68,6 +70,11 @@ summariseCharacteristics <- function(cohort,
                                      cohortIntersect = list(),
                                      conceptIntersect = list(),
                                      otherVariables = character()) {
+  lifecycle::deprecate_soft(
+    when = "0.8.0",
+    what = "PatientProfiles::summariseCharacteristics()",
+    with = "CohortCharacteristics::summariseCharacteristics()"
+  )
   if (lifecycle::is_present(cdm)) {
     lifecycle::deprecate_warn("0.6.0", "summariseCharacteristics(cdm)")
   }
@@ -87,15 +94,15 @@ summariseCharacteristics <- function(cohort,
   checkOtherVariables(otherVariables, cohort)
 
   # check empty
-  if (demographics == FALSE &
-      length(tableIntersect) == 0 &
-      length(cohortIntersect) == 0 &
-      length(conceptIntersect) == 0 ) {
-    cli::cli_abort(
-      "Please fill demographics, tableIntersect, cohortIntersect or
-      conceptIntersect"
-    )
-  }
+  # if (demographics == FALSE &
+  #     length(tableIntersect) == 0 &
+  #     length(cohortIntersect) == 0 &
+  #     length(conceptIntersect) == 0 ) {
+  #   cli::cli_abort(
+  #     "Please fill demographics, tableIntersect, cohortIntersect or
+  #     conceptIntersect"
+  #   )
+  # }
 
   # functions
   functions <- list(
@@ -122,6 +129,7 @@ summariseCharacteristics <- function(cohort,
       variables <- "number records"
     }
     result <- dplyr::tibble(
+      "result_id" = as.integer(1),
       "cdm_name" = CDMConnector::cdmName(cdm),
       "result_type" = "summarised_characteristics",
       "package_name" = "PatientProfiles",
@@ -446,8 +454,7 @@ summariseCharacteristics <- function(cohort,
       group = list("cohort_name"),
       strata = strata,
       variables = variables,
-      estimates = functions[names(variables)],
-      verbose = FALSE
+      estimates = functions[names(variables)]
     ) %>%
     addCdmName(cdm = cdm) %>%
     dplyr::select(!"result_type")
@@ -492,7 +499,44 @@ summariseCharacteristics <- function(cohort,
   return(results)
 }
 
+#' Summarise counts for each different cohort. You can add a list of
+#' stratifications.
+#'
+#' `r lifecycle::badge("deprecated")`
+#'
+#' @param cohort A cohort in the cdm.
+#' @param strata Stratification list.
+#'
+#' @return A summary of the number of individuals in each cohrot and strata.
+#'
+#' @export
+#'
+#' @examples
+#' \donttest{
+#' cdm <- mockPatientProfiles()
+#'
+#' cdm$cohort1 |>
+#'   addSex() |>
+#'   summariseCohortCounts(strata = "sex")
+#' }
+#'
+summariseCohortCounts <- function(cohort,
+                                  strata = list()) {
+  lifecycle::deprecate_soft(
+    when = "0.8.0",
+    what = "PatientProfiles::summariseCohortCounts()",
+    with = "CohortCharacteristics::summariseCohortCounts()"
+  )
+  summariseCharacteristics(
+    cohort = cohort, strata = strata, demographics = FALSE, ageGroup = NULL,
+    tableIntersect = list(), cohortIntersect = list(),
+    conceptIntersect = list(), otherVariables = character()
+  )
+}
+
 #' Summarise concept intersect with a cohort_table
+#'
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param cohort A cohort in the cdm
 #' @param strata Stratification list
@@ -506,6 +550,11 @@ summariseCharacteristics <- function(cohort,
 summariseConceptIntersect <- function(cohort,
                                       conceptIntersect,
                                       strata = list()) {
+  lifecycle::deprecate_soft(
+    when = "0.8.0",
+    what = "PatientProfiles::summariseConceptIntersect()",
+    with = "CohortCharacteristics::summariseConceptIntersect()"
+  )
   if (length(conceptIntersect) == 0) {
     cli::cli_abort("Please provide at least one cocneptSet to insersect with.")
   }

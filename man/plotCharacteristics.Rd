@@ -3,19 +3,17 @@
 \name{plotCharacteristics}
 \alias{plotCharacteristics}
 \title{Create a ggplot from the output of summariseCharacteristics.
-`r lifecycle::badge("experimental")`}
+`r lifecycle::badge("deprecated")`}
 \usage{
 plotCharacteristics(
   data,
   xAxis = "variable_name",
   yAxis = "estimate_value",
   plotStyle = "barplot",
-  facetVars = NULL,
+  facetVarX = NULL,
+  facetVarY = NULL,
   colorVars = NULL,
-  facetOrder = NULL,
-  colorNames = NULL,
-  vertical_x = FALSE,
-  options = list()
+  vertical_x = FALSE
 )
 }
 \arguments{
@@ -27,24 +25,20 @@ plotCharacteristics(
 
 \item{plotStyle}{Now allows boxplot or barplot only.}
 
-\item{facetVars}{column in data to facet by.}
+\item{facetVarX}{column in data to facet by on horizontal axis}
+
+\item{facetVarY}{column in data to facet by on vertical axis}
 
 \item{colorVars}{column in data to color by.}
 
-\item{facetOrder}{order of facet, make sure multiple facets are separated by period and in the order provided in facetVars.}
-
-\item{colorNames}{A vector or pre-selected color.}
-
 \item{vertical_x}{whether to display x axis string vertically.}
-
-\item{options}{Other plot options in a list.}
 }
 \value{
 A ggplot.
 }
 \description{
 Create a ggplot from the output of summariseCharacteristics.
-`r lifecycle::badge("experimental")`
+`r lifecycle::badge("deprecated")`
 }
 \examples{
 \donttest{

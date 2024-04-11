@@ -1,6 +1,6 @@
-# Copyright 2022 DARWIN EU (C)
+# Copyright 2024 DARWIN EU (C)
 #
-# This file is part of DrugUtilisation
+# This file is part of PatientProfiles
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 #' This function is used to summarise the large scale characteristics of a
 #' cohort table
+#'
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param cohort The cohort to characterise.
 #' @param strata Stratification list.
@@ -74,6 +76,11 @@ summariseLargeScaleCharacteristics <- function(cohort,
                                                minimumFrequency = 0.005,
                                                excludedCodes = c(0),
                                                cdm = lifecycle::deprecated()) {
+  lifecycle::deprecate_soft(
+    when = "0.8.0",
+    what = "PatientProfiles::summariseLargeScaleCharacteristics()",
+    with = "CohortCharacteristics::summariseLargeScaleCharacteristics()"
+  )
   if (!is.list(window)) {
     window <- list(window)
   }
@@ -199,6 +206,8 @@ summariseLargeScaleCharacteristics <- function(cohort,
 
 #' This function is used to add columns with the large scale characteristics of
 #' a cohort table.
+#'
+#' `r lifecycle::badge("experimental")`
 #'
 #' @param cohort The cohort to characterise.
 #' @param window Temporal windows that we want to characterize.
@@ -502,8 +511,7 @@ summariseStrataCounts <- function(tableWindowCohort, strata) {
           dplyr::group_by(dplyr::pick(c("concept", strata[[k]]))) %>%
           dplyr::summarise(count = as.numeric(dplyr::n()), .groups = "drop") %>%
           dplyr::collect() %>%
-          tidyr::unite(col = "strata_level", dplyr::all_of(strata[[k]]), sep = " and ") %>%
-          dplyr::mutate(strata_name = paste0(strata[[k]], collapse = " and "))
+          visOmopResults::uniteStrata(cols = strata[[k]])
       )
   }
   return(result)

@@ -1,4 +1,4 @@
-# Copyright 2023 DARWIN EU (C)
+# Copyright 2024 DARWIN EU (C)
 #
 # This file is part of PatientProfiles
 #
@@ -15,6 +15,7 @@
 # limitations under the License.
 
 #' It creates columns to indicate overlap information between two tables
+#'
 #' `r lifecycle::badge("deprecated")`
 #'
 #' @param x Table with individuals in the cdm.
@@ -208,14 +209,14 @@ addIntersect <- function(x,
       if (is.infinite(win[2])) {
         resultW <- result
       } else {
-        resultW <- result %>% dplyr::filter(.data$end <= !!win[2])
+        resultW <- result %>% dplyr::filter(.data$start <= !!win[2])
       }
     } else {
       if (is.infinite(win[2])) {
-        resultW <- result %>% dplyr::filter(.data$start >= !!win[1])
+        resultW <- result %>% dplyr::filter(.data$end >= !!win[1])
       } else {
         resultW <- result %>%
-          dplyr::filter(.data$start >= !!win[1] & .data$end <= !!win[2])
+          dplyr::filter(.data$end >= !!win[1] & .data$start <= !!win[2])
       }
     }
 

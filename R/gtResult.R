@@ -1,3 +1,19 @@
+# Copyright 2024 DARWIN EU (C)
+#
+# This file is part of PatientProfiles
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 #' Create a gt table from a summarisedCharacteristics object.
 #'
 #' `r lifecycle::badge("deprecated")`
@@ -14,28 +30,6 @@
 #'
 #' @export
 #'
-#' @examples
-#' \donttest{
-#' library(PatientProfiles)
-#'
-#' cdm <- mockPatientProfiles()
-#'
-#' summariseCharacteristics(
-#'   cohort = cdm$cohort1,
-#'   ageGroup = list(c(0, 19), c(20, 39), c(40, 59), c(60, 79), c(80, 150)),
-#'   tableIntersect = list(
-#'     "Visits" = list(
-#'       tableName = "visit_occurrence", value = "count", window = c(-365, 0)
-#'     )
-#'   ),
-#'   cohortIntersect = list(
-#'     "Medications" = list(
-#'       targetCohortTable = "cohort2", value = "flag", window = c(-365, 0)
-#'     )
-#'   )
-#' )
-#' CDMConnector::cdmDisconnect(cdm = cdm)
-#' }
 gtCharacteristics <- function(summarisedCharacteristics,
                               pivotWide = c("CDM Name", "Group", "Strata"),
                               format = c(
@@ -110,13 +104,13 @@ gtResult <- function(summarisedResult,
 #' @param result A summarised_characteristics object.
 #' @param type Type of desired formatted table, possibilities: "gt",
 #' "flextable", "tibble".
-#' @param splitStrata Whether or not to split the strata, deault is True.
+#' @param splitStrata Whether or not to split the strata, default is True.
 #' @param format The columns that the user wishes to see for the
 #' formatted table.
 #' @param cdmName Whether or not to display the cdm name, default is TRUE.
 #' @param cohortName Weather or not to display the cohort name, default is TRUE.
 #' @param style The style of the table output.
-#' @param minCellCount Default is 5, meaing results that are more than
+#' @param minCellCount Default is 5, meaning results that are more than
 #' 0 but less than 5 will not be reported.
 #' @param .options See optionsTableCharacteristics() for default values.
 #'

@@ -1,4 +1,4 @@
-# Copyright 2023 DARWIN EU (C)
+# Copyright 2024 DARWIN EU (C)
 #
 # This file is part of PatientProfiles
 #
@@ -16,7 +16,7 @@
 
 #' Format a summarised_characteristics object into a visual table.
 #'
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param result A summarised_characteristics object.
 #' @param type Type of desired formatted table, possibilities: "gt",
@@ -145,7 +145,7 @@ optionsTableCharacteristics <- function() {
 
 #' Format a summariseOverlapCohort result into a visual table.
 #'
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param result A summariseOverlapCohort result.
 #' @param type Type of desired formatted table, possibilities: "gt",
@@ -294,7 +294,7 @@ niceNum <- function(num, .options, type) {
 
 #' Format a summariseCohortTiming result into a visual table.
 #'
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param result A summariseCohortTiming result
 #' @param type Type of desired formatted table, possibilities: "gt",
@@ -427,7 +427,7 @@ optionsTableCohortTiming <- function() {
 
 #' Format a summariseTableIntersect result into a visual table.
 #'
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param result A result from summariseTableIntersect.
 #' @param type Type of desired formatted table, possibilities: "gt",
@@ -495,7 +495,7 @@ tableTableIntersect <- function(result,
 
 #' Format a summariseCohortIntersect result into a visual table.
 #'
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param result A result from summariseCohortIntersect.
 #' @param type Type of desired formatted table, possibilities: "gt",
@@ -582,13 +582,13 @@ tableCohortIntersect <- function(result,
 
 #' Format a summarised_large_scale_characteristics object into a visual table.
 #'
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param result A summarised_large_scalecharacteristics object.
 #' @param type Output type ("gt" or "flextable").
 #' @param formatEstimateName Named list of estimate name's to join, sorted by
 #' computation order. Indicate estimate_name's between <...>.
-#' @param splitStrata Whether to split strata_group and starta_level to multiple
+#' @param splitStrata Whether to split strata_group and strata_level to multiple
 #' columns.
 #' @param header Specify the headers of the table.
 #' @param topConcepts Number of concepts to restrict the table.
@@ -741,7 +741,7 @@ orderWindow <- function(res) {
 
 #' Format a summariseDemographics result into a visual table.
 #'
-#' `r lifecycle::badge("experimental")`
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param result A result from summariseDemographics.
 #' @param type Type of desired formatted table, possibilities: "gt",

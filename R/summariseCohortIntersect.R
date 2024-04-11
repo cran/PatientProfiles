@@ -1,4 +1,4 @@
-# Copyright 2022 DARWIN EU (C)
+# Copyright 2024 DARWIN EU (C)
 #
 # This file is part of PatientProfiles
 #
@@ -15,6 +15,8 @@
 # limitations under the License.
 
 #' Summarise cohort intersection information
+#'
+#' `r lifecycle::badge("deprecated")`
 #'
 #' @param cohort A cohort in the cdm.
 #' @param cohortIntersect The settings for cohort intersection settings.
@@ -40,8 +42,16 @@
 #' CDMConnector::cdmDisconnect(cdm = cdm)
 #' }
 summariseCohortIntersect <- function(cohort,
-                                     cohortIntersect = list(),
+                                     cohortIntersect,
                                      strata = list()){
+  lifecycle::deprecate_soft(
+    when = "0.8.0",
+    what = "PatientProfiles::summariseCohortIntersect()",
+    with = "CohortCharacteristics::summariseCohortIntersect()"
+  )
+  if (length(cohortIntersect) == 0) {
+    cli::cli_abort("Please provide at least a cohort to intersect with, see addCohortIntersect arguments and examples for help.")
+  }
   summariseCharacteristics(
     cohort = cohort,
     strata = strata,
