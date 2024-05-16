@@ -3,7 +3,7 @@
 \name{addDeathFlag}
 \alias{addDeathFlag}
 \title{Add flag for death for individuals. Only death within the same observation
-period than `indeDate` will be observed.}
+period than `indexDate` will be observed.}
 \usage{
 addDeathFlag(
   x,
@@ -29,14 +29,14 @@ table x with the added column with death information added.
 }
 \description{
 Add flag for death for individuals. Only death within the same observation
-period than `indeDate` will be observed.
+period than `indexDate` will be observed.
 }
 \examples{
 \donttest{
 cdm <- mockPatientProfiles()
 cdm$cohort1 \%>\%
   addDeathFlag()
-CDMConnector::cdmDisconnect(cdm = cdm)
+mockDisconnect(cdm = cdm)
 }
 
 }

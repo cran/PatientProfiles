@@ -3,10 +3,7 @@ library(PatientProfiles)
 library(duckdb)
 library(dplyr)
 
-cdm <- mockPatientProfiles(
-  patient_size = 10000,
-  drug_exposure_size = 10000
-)
+cdm <- mockPatientProfiles(numberIndividuals = 10000)
 
 cdm$person %>% 
   dplyr::glimpse()
@@ -42,8 +39,8 @@ cdm$condition_occurrence %>%
 cdm$condition_occurrence <- cdm$condition_occurrence %>%
   addAge(indexDate = "condition_start_date", 
          ageName = "age_from_year_of_birth", 
-         ageDefaultMonth = 1,
-         ageDefaultDay = 1,
+         ageMissingMonth = 1,
+         ageMissingDay = 1,
          ageImposeMonth = TRUE, 
          ageImposeDay = TRUE)
 

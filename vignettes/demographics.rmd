@@ -14,17 +14,14 @@ vignette: >
 ---
 
 ## Introduction
-The OMOP CDM is a person-centric model. The person table contains records that uniquely identify each individual along with some of their demographic information. Below we create a mock CDM reference which, as is standard, has a person table which contains fields which indicate an individual's date of birth, gender, race, and ethnicity. Each of these, except for date of birthh, are represented by a concept ID (and as the person table contains one record per person these fields are treated as time-invariant).
+The OMOP CDM is a person-centric model. The person table contains records that uniquely identify each individual along with some of their demographic information. Below we create a mock CDM reference which, as is standard, has a person table which contains fields which indicate an individual's date of birth, gender, race, and ethnicity. Each of these, except for date of birth, are represented by a concept ID (and as the person table contains one record per person these fields are treated as time-invariant).
 
 ```{r, message= FALSE, warning=FALSE}
 library(PatientProfiles)
 library(duckdb)
 library(dplyr)
 
-cdm <- mockPatientProfiles(
-  patient_size = 10000,
-  drug_exposure_size = 10000
-)
+cdm <- mockPatientProfiles(numberIndividuals = 10000)
 
 cdm$person %>% 
   dplyr::glimpse()
@@ -80,8 +77,8 @@ By default, when adding age the new column will have been called "age" and will 
 cdm$condition_occurrence <- cdm$condition_occurrence %>%
   addAge(indexDate = "condition_start_date", 
          ageName = "age_from_year_of_birth", 
-         ageDefaultMonth = 1,
-         ageDefaultDay = 1,
+         ageMissingMonth = 1,
+         ageMissingDay = 1,
          ageImposeMonth = TRUE, 
          ageImposeDay = TRUE)
 
@@ -122,7 +119,7 @@ When checking whether someone is in observation the default is that we are check
   glimpse()
 ```
 
-We can also specify a window and require that an individual is present for only some days within it. Here we add a variable incating whether the individual was in observation at least a year in the future,
+We can also specify a window and require that an individual is present for only some days within it. Here we add a variable indicating whether the individual was in observation at least a year in the future,
 ```{r, message= FALSE, warning=FALSE}
  cdm$condition_occurrence %>%
   addInObservation(indexDate = "condition_start_date", 

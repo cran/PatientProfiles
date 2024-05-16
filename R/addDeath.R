@@ -15,7 +15,7 @@
 # limitations under the License.
 
 #' Add date of death for individuals. Only death within the same observation
-#' period than `indeDate` will be observed.
+#' period than `indexDate` will be observed.
 #'
 #' @param x Table with individuals in the cdm.
 #' @param indexDate Variable in x that contains the window origin.
@@ -31,7 +31,7 @@
 #' cdm <- mockPatientProfiles()
 #' cdm$cohort1 %>%
 #'   addDeathDate()
-#' CDMConnector::cdmDisconnect(cdm = cdm)
+#' mockDisconnect(cdm = cdm)
 #' }
 #'
 addDeathDate <- function(x,
@@ -50,7 +50,7 @@ addDeathDate <- function(x,
 }
 
 #' Add days to death for individuals. Only death within the same observation
-#' period than `indeDate` will be observed.
+#' period than `indexDate` will be observed.
 #'
 #' @param x Table with individuals in the cdm.
 #' @param indexDate Variable in x that contains the window origin.
@@ -66,7 +66,7 @@ addDeathDate <- function(x,
 #' cdm <- mockPatientProfiles()
 #' cdm$cohort1 %>%
 #'   addDeathDays()
-#' CDMConnector::cdmDisconnect(cdm = cdm)
+#' mockDisconnect(cdm = cdm)
 #' }
 #'
 addDeathDays <- function(x,
@@ -86,7 +86,7 @@ addDeathDays <- function(x,
 
 
 #' Add flag for death for individuals. Only death within the same observation
-#' period than `indeDate` will be observed.
+#' period than `indexDate` will be observed.
 #'
 #' @param x Table with individuals in the cdm.
 #' @param indexDate Variable in x that contains the window origin.
@@ -102,7 +102,7 @@ addDeathDays <- function(x,
 #' cdm <- mockPatientProfiles()
 #' cdm$cohort1 %>%
 #'   addDeathFlag()
-#' CDMConnector::cdmDisconnect(cdm = cdm)
+#' mockDisconnect(cdm = cdm)
 #' }
 #'
 addDeathFlag <- function(x,
@@ -132,13 +132,13 @@ addDeath <- function(x,
   # input validation
   cdm <- omopgenerics::cdmReference(x)
   checkCdm(cdm, tables = "death")
-  if(!indexDate %in% colnames(x)){
+  if (!indexDate %in% colnames(x)) {
     cli::cli_abort("{indexDate} variable not found in table")
   }
   if (!is.list(window)) {
     window <- list(window)
   }
-  if(length(window) != 1){
+  if (length(window) != 1) {
     cli::cli_abort("Only one time window can be provided")
   }
   checkWindow(window)
