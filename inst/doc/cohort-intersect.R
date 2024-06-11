@@ -17,7 +17,8 @@ settings(cdm$cohort2)
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$cohort1 %>%
-  addCohortIntersectFlag(indexDate = "cohort_start_date",
+  addCohortIntersectFlag(
+    indexDate = "cohort_start_date",
     targetCohortTable = "cohort2",
     targetStartDate = "cohort_start_date",
     targetEndDate = "cohort_end_date",
@@ -26,7 +27,8 @@ cdm$cohort1 %>%
   glimpse()
 
 cdm$cohort1 %>%
-  addCohortIntersectCount(indexDate = "cohort_start_date",
+  addCohortIntersectCount(
+    indexDate = "cohort_start_date",
     targetCohortTable = "cohort2",
     targetStartDate = "cohort_start_date",
     targetEndDate = "cohort_end_date",
