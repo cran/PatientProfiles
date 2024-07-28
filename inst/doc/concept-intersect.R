@@ -18,10 +18,12 @@ library(dplyr)
 library(ggplot2)
 
 con <- DBI::dbConnect(duckdb::duckdb(),
-                       dbdir = CDMConnector::eunomia_dir())
+  dbdir = CDMConnector::eunomia_dir()
+)
 cdm <- CDMConnector::cdm_from_con(con,
-                                   cdm_schem = "main",
-                                   write_schema = "main")
+  cdm_schem = "main",
+  write_schema = "main"
+)
 
 cdm <- generateConceptCohortSet(
   cdm = cdm,
@@ -35,70 +37,94 @@ cdm <- generateConceptCohortSet(
 cdm$ankle_sprain
 
 ## -----------------------------------------------------------------------------
-acetaminophen_cs <- getDrugIngredientCodes(cdm = cdm, 
-                        name = c("acetaminophen"))
+acetaminophen_cs <- getDrugIngredientCodes(
+  cdm = cdm,
+  name = c("acetaminophen")
+)
 
 acetaminophen_cs
 
 ## -----------------------------------------------------------------------------
 cdm$ankle_sprain %>%
-  addConceptIntersectFlag(conceptSet = acetaminophen_cs, 
-                          indexDate = "cohort_start_date", 
-                          window = c(0, 30)) %>% 
+  addConceptIntersectFlag(
+    conceptSet = acetaminophen_cs,
+    indexDate = "cohort_start_date",
+    window = c(0, 30)
+  ) %>%
   dplyr::glimpse()
 
 ## -----------------------------------------------------------------------------
 cdm$ankle_sprain %>%
-  addConceptIntersectCount(conceptSet = acetaminophen_cs, 
-                          indexDate = "cohort_start_date", 
-                          window = c(0, 30)) %>% 
+  addConceptIntersectCount(
+    conceptSet = acetaminophen_cs,
+    indexDate = "cohort_start_date",
+    window = c(0, 30)
+  ) %>%
   dplyr::glimpse()
 
 ## -----------------------------------------------------------------------------
 cdm$ankle_sprain %>%
-  addConceptIntersectDate(conceptSet = acetaminophen_cs, 
-                          indexDate = "cohort_start_date", 
-                          window = c(0, 30), 
-                          order = "first") %>% 
+  addConceptIntersectDate(
+    conceptSet = acetaminophen_cs,
+    indexDate = "cohort_start_date",
+    window = c(0, 30),
+    order = "first"
+  ) %>%
   dplyr::glimpse()
 
 ## -----------------------------------------------------------------------------
 cdm$ankle_sprain %>%
-  addConceptIntersectDays(conceptSet = acetaminophen_cs, 
-                          indexDate = "cohort_start_date", 
-                          window = c(0, 30), 
-                          order = "first") %>% 
+  addConceptIntersectDays(
+    conceptSet = acetaminophen_cs,
+    indexDate = "cohort_start_date",
+    window = c(0, 30),
+    order = "first"
+  ) %>%
   dplyr::glimpse()
 
 ## -----------------------------------------------------------------------------
 cdm$ankle_sprain %>%
-  addConceptIntersectFlag(conceptSet = acetaminophen_cs, 
-                          indexDate = "cohort_start_date", 
-                          window = list(c(-Inf, -1),
-                                        c(0, 0),
-                                        c(1, Inf))) %>% 
+  addConceptIntersectFlag(
+    conceptSet = acetaminophen_cs,
+    indexDate = "cohort_start_date",
+    window = list(
+      c(-Inf, -1),
+      c(0, 0),
+      c(1, Inf)
+    )
+  ) %>%
   dplyr::glimpse()
 
 ## -----------------------------------------------------------------------------
-meds_cs <- getDrugIngredientCodes(cdm = cdm, 
-                                  name = c("acetaminophen",
-                                           "amoxicillin",
-                                           "aspirin",
-                                           "heparin",
-                                           "morphine",
-                                           "oxycodone",
-                                           "warfarin"))
+meds_cs <- getDrugIngredientCodes(
+  cdm = cdm,
+  name = c(
+    "acetaminophen",
+    "amoxicillin",
+    "aspirin",
+    "heparin",
+    "morphine",
+    "oxycodone",
+    "warfarin"
+  )
+)
 
 cdm$ankle_sprain %>%
-  addConceptIntersectFlag(conceptSet = meds_cs, 
-                          indexDate = "cohort_start_date", 
-                          window = list(c(-Inf, -1),
-                                        c(0, 0))) %>% 
+  addConceptIntersectFlag(
+    conceptSet = meds_cs,
+    indexDate = "cohort_start_date",
+    window = list(
+      c(-Inf, -1),
+      c(0, 0)
+    )
+  ) %>%
   dplyr::glimpse()
 
 ## ----fig.width=7--------------------------------------------------------------
-acetaminophen_cs <- getDrugIngredientCodes(cdm = cdm, 
-                                  name = c("acetaminophen"))
+acetaminophen_cs <- getDrugIngredientCodes(
+  cdm = cdm,
+  name = c("acetaminophen")
+)
 
 cdm <- generateConceptCohortSet(
   cdm = cdm,
@@ -109,26 +135,34 @@ cdm <- generateConceptCohortSet(
 )
 
 dplyr::bind_rows(
-cdm$ankle_sprain |> 
-  addCohortIntersectCount(targetCohortTable = "acetaminophen",
-                         window = c(-Inf, Inf)) |> 
-  dplyr::group_by(acetaminophen_minf_to_inf)  |> 
-  dplyr::tally() |> 
-  dplyr::collect() |> 
-  dplyr::arrange(desc(acetaminophen_minf_to_inf)) |> 
-  dplyr::mutate(type = "cohort"),
-cdm$ankle_sprain |> 
-  addConceptIntersectCount(conceptSet = acetaminophen_cs, 
-                         window = c(-Inf, Inf)) |> 
-  dplyr::group_by(acetaminophen_minf_to_inf) |> 
-  dplyr::tally() |> 
-  dplyr::collect() |> 
-  dplyr::arrange(desc(acetaminophen_minf_to_inf)) |> 
-  dplyr::mutate(type = "concept_set")) |> 
+  cdm$ankle_sprain |>
+    addCohortIntersectCount(
+      targetCohortTable = "acetaminophen",
+      window = c(-Inf, Inf)
+    ) |>
+    dplyr::group_by(`161_acetaminophen_minf_to_inf`) |>
+    dplyr::tally() |>
+    dplyr::collect() |>
+    dplyr::arrange(desc(`161_acetaminophen_minf_to_inf`)) |>
+    dplyr::mutate(type = "cohort"),
+  cdm$ankle_sprain |>
+    addConceptIntersectCount(
+      conceptSet = acetaminophen_cs,
+      window = c(-Inf, Inf)
+    ) |>
+    dplyr::group_by(`161_acetaminophen_minf_to_inf`) |>
+    dplyr::tally() |>
+    dplyr::collect() |>
+    dplyr::arrange(desc(`161_acetaminophen_minf_to_inf`)) |>
+    dplyr::mutate(type = "concept_set")
+) |>
   ggplot() +
-  geom_col(aes(acetaminophen_minf_to_inf, n, fill = type), 
-           position = "dodge") +
-  theme_bw()+
-  theme(legend.title = element_blank(), 
-        legend.position = "top")
+  geom_col(aes(`161_acetaminophen_minf_to_inf`, n, fill = type),
+    position = "dodge"
+  ) +
+  theme_bw() +
+  theme(
+    legend.title = element_blank(),
+    legend.position = "top"
+  )
 

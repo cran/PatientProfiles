@@ -58,8 +58,8 @@ addCategories <- function(x,
   }
   var <- dplyr::pull(utils::head(x, 1), variable)
   if (!inherits(var, "numeric") &
-      !inherits(var, "integer") &
-      !inherits(var, "Date")) {
+    !inherits(var, "integer") &
+    !inherits(var, "Date")) {
     cli::cli_abort("{variable} must be a numeric or date variable")
   }
   assertList(categories, class = "list")
@@ -108,7 +108,7 @@ addCategories <- function(x,
     categoryTibble[[nam[k]]] <- checkCategory(categories[[k]],
       overlap = overlap
     )
-    if (date) {
+    if (date & is.null(names(categories[[k]]))) {
       categoryTibble[[nam[k]]] <- categoryTibble[[nam[k]]] %>%
         dplyr::mutate(category_label = paste(
           as.Date(.data$lower_bound, origin = "1970-01-01"), "to",

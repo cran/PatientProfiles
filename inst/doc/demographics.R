@@ -5,11 +5,11 @@ library(dplyr)
 
 cdm <- mockPatientProfiles(numberIndividuals = 10000)
 
-cdm$person %>% 
+cdm$person %>%
   dplyr::glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$observation_period %>% 
+cdm$observation_period %>%
   dplyr::glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
@@ -28,21 +28,25 @@ cdm$condition_occurrence <- cdm$condition_occurrence %>%
   addAge(
     indexDate = "condition_start_date",
     ageGroup = list(
-        "0 to 17" = c(0, 17),
-        "18 to 65" = c(18, 65),
-        ">= 66" = c(66, Inf)))
+      "0 to 17" = c(0, 17),
+      "18 to 65" = c(18, 65),
+      ">= 66" = c(66, Inf)
+    )
+  )
 
 cdm$condition_occurrence %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$condition_occurrence <- cdm$condition_occurrence %>%
-  addAge(indexDate = "condition_start_date", 
-         ageName = "age_from_year_of_birth", 
-         ageMissingMonth = 1,
-         ageMissingDay = 1,
-         ageImposeMonth = TRUE, 
-         ageImposeDay = TRUE)
+  addAge(
+    indexDate = "condition_start_date",
+    ageName = "age_from_year_of_birth",
+    ageMissingMonth = 1,
+    ageMissingDay = 1,
+    ageImposeMonth = TRUE,
+    ageImposeDay = TRUE
+  )
 
 cdm$condition_occurrence %>%
   glimpse()
@@ -56,24 +60,28 @@ cdm$condition_occurrence %>%
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
 cdm$condition_occurrence <- cdm$condition_occurrence %>%
-  addInObservation(indexDate = "condition_start_date") %>% 
-  addPriorObservation(indexDate = "condition_start_date") %>% 
+  addInObservation(indexDate = "condition_start_date") %>%
+  addPriorObservation(indexDate = "condition_start_date") %>%
   addFutureObservation(indexDate = "condition_start_date")
 
 cdm$condition_occurrence %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
- cdm$condition_occurrence %>%
-  addInObservation(indexDate = "condition_start_date", 
-                   window = c(-180, 30)) %>%
+cdm$condition_occurrence %>%
+  addInObservation(
+    indexDate = "condition_start_date",
+    window = c(-180, 30)
+  ) %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
- cdm$condition_occurrence %>%
-  addInObservation(indexDate = "condition_start_date", 
-                   window = c(365, Inf), 
-                   completeInterval = FALSE) %>%
+cdm$condition_occurrence %>%
+  addInObservation(
+    indexDate = "condition_start_date",
+    window = c(365, Inf),
+    completeInterval = FALSE
+  ) %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
@@ -82,10 +90,11 @@ cdm$cohort1 %>%
 
 cdm$cohort1 <- cdm$cohort1 %>%
   addAge(ageGroup = list(
-        "0 to 17" = c(0, 17),
-        "18 to 65" = c(18, 65),
-        ">= 66" = c(66, Inf))) %>% 
-  addSex() %>% 
+    "0 to 17" = c(0, 17),
+    "18 to 65" = c(18, 65),
+    ">= 66" = c(66, Inf)
+  )) %>%
+  addSex() %>%
   addInObservation() %>%
   addPriorObservation() %>%
   addFutureObservation()
@@ -100,10 +109,11 @@ cdm$cohort2 %>%
 tictoc::tic()
 cdm$cohort2 %>%
   addAge(ageGroup = list(
-        "0 to 17" = c(0, 17),
-        "18 to 65" = c(18, 65),
-        ">= 66" = c(66, Inf))) %>% 
-  addSex() %>% 
+    "0 to 17" = c(0, 17),
+    "18 to 65" = c(18, 65),
+    ">= 66" = c(66, Inf)
+  )) %>%
+  addSex() %>%
   addInObservation() %>%
   addPriorObservation() %>%
   addFutureObservation()
@@ -115,9 +125,10 @@ cdm$cohort2 %>%
     age = TRUE,
     ageName = "age",
     ageGroup = list(
-        "0 to 17" = c(0, 17),
-        "18 to 65" = c(18, 65),
-        ">= 66" = c(66, Inf)),
+      "0 to 17" = c(0, 17),
+      "18 to 65" = c(18, 65),
+      ">= 66" = c(66, Inf)
+    ),
     sex = TRUE,
     sexName = "sex",
     priorObservation = TRUE,

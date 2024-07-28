@@ -365,10 +365,12 @@ library(dplyr)
 library(ggplot2)
 
 con &lt;- DBI::dbConnect(duckdb::duckdb(),
-                       dbdir = CDMConnector::eunomia_dir())
+  dbdir = CDMConnector::eunomia_dir()
+)
 cdm &lt;- CDMConnector::cdm_from_con(con,
-                                   cdm_schem = &quot;main&quot;,
-                                   write_schema = &quot;main&quot;)
+  cdm_schem = &quot;main&quot;,
+  write_schema = &quot;main&quot;
+)
 
 cdm &lt;- generateConceptCohortSet(
   cdm = cdm,
@@ -381,29 +383,29 @@ cdm &lt;- generateConceptCohortSet(
 
 cdm$ankle_sprain
 #&gt; # Source:   table&lt;main.ankle_sprain&gt; [?? x 4]
-#&gt; # Database: DuckDB v0.10.0 [martics@Windows 10 x64:R 4.2.1/C:\Users\martics\AppData\Local\Temp\RtmpeWnvMH\file6cb05551557d.duckdb]
+#&gt; # Database: DuckDB v1.0.0 [root@Darwin 23.4.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpzA2J8b/file751332d13f7c.duckdb]
 #&gt;    cohort_definition_id subject_id cohort_start_date cohort_end_date
 #&gt;                   &lt;int&gt;      &lt;int&gt; &lt;date&gt;            &lt;date&gt;         
-#&gt;  1                    1         41 1990-01-18        1990-02-22     
-#&gt;  2                    1        304 1968-10-01        1968-11-05     
-#&gt;  3                    1        807 1964-09-04        1964-10-02     
-#&gt;  4                    1       1947 1954-03-20        1954-04-03     
-#&gt;  5                    1       2344 1983-09-02        1983-09-16     
-#&gt;  6                    1       2802 1951-11-20        1951-12-11     
-#&gt;  7                    1       3401 2002-02-21        2002-03-21     
-#&gt;  8                    1       3442 2011-07-15        2011-08-19     
-#&gt;  9                    1       3533 1996-07-03        1996-08-07     
-#&gt; 10                    1       4432 2004-08-13        2004-09-17     
+#&gt;  1                    1        884 2008-03-21        2008-04-18     
+#&gt;  2                    1       1117 1937-11-12        1937-12-03     
+#&gt;  3                    1       1145 1961-10-22        1961-11-26     
+#&gt;  4                    1       1214 1947-10-08        1947-11-05     
+#&gt;  5                    1       2210 1958-06-02        1958-06-23     
+#&gt;  6                    1       2461 1976-01-13        1976-01-27     
+#&gt;  7                    1       3064 1936-08-28        1936-10-02     
+#&gt;  8                    1       3141 1985-08-20        1985-09-03     
+#&gt;  9                    1       3509 1943-01-11        1943-02-01     
+#&gt; 10                    1       3668 1996-04-26        1996-05-24     
 #&gt; # ℹ more rows
 
 cdm$ankle_sprain %&gt;%
   addTableIntersectFlag(
     tableName = &quot;condition_occurrence&quot;,
     window = c(-30, -1)
-  ) |&gt; 
+  ) |&gt;
   tally()
 #&gt; # Source:   SQL [1 x 1]
-#&gt; # Database: DuckDB v0.10.0 [martics@Windows 10 x64:R 4.2.1/C:\Users\martics\AppData\Local\Temp\RtmpeWnvMH\file6cb05551557d.duckdb]
+#&gt; # Database: DuckDB v1.0.0 [root@Darwin 23.4.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpzA2J8b/file751332d13f7c.duckdb]
 #&gt;       n
 #&gt;   &lt;dbl&gt;
 #&gt; 1  1915</code></pre>
@@ -412,94 +414,94 @@ a record in the drug exposure table in the 30 days before their ankle
 sprain. If we set targetStartDate to “drug_exposure_start_date” and
 targetEndDate to “drug_exposure_end_date” we are checking whether an
 individual had an ongoing drug exposure record in the window.</p>
-<pre class="r"><code>cdm$ankle_sprain |&gt; 
+<pre class="r"><code>cdm$ankle_sprain |&gt;
   addTableIntersectFlag(
     tableName = &quot;drug_exposure&quot;,
-    indexDate = &quot;cohort_start_date&quot;, 
+    indexDate = &quot;cohort_start_date&quot;,
     targetStartDate = &quot;drug_exposure_start_date&quot;,
     targetEndDate = &quot;drug_exposure_end_date&quot;,
     window = c(-30, -1)
-  ) |&gt; 
+  ) |&gt;
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v0.10.0 [martics@Windows 10 x64:R 4.2.1/C:\Users\martics\AppData\Local\Temp\RtmpeWnvMH\file6cb05551557d.duckdb]
+#&gt; Database: DuckDB v1.0.0 [root@Darwin 23.4.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpzA2J8b/file751332d13f7c.duckdb]
 #&gt; $ cohort_definition_id    &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
-#&gt; $ subject_id              &lt;int&gt; 3442, 3942, 61, 4409, 2097, 564, 4081, 3885, 5…
-#&gt; $ cohort_start_date       &lt;date&gt; 2011-07-15, 1993-03-02, 1983-12-03, 1983-07-1…
-#&gt; $ cohort_end_date         &lt;date&gt; 2011-08-19, 1993-04-06, 1984-01-07, 1983-08-1…
+#&gt; $ subject_id              &lt;int&gt; 3047, 5022, 1335, 1568, 1992, 2651, 2843, 3820…
+#&gt; $ cohort_start_date       &lt;date&gt; 1989-04-28, 2010-01-23, 1998-05-28, 2017-12-0…
+#&gt; $ cohort_end_date         &lt;date&gt; 1989-05-26, 2010-02-27, 1998-06-18, 2017-12-2…
 #&gt; $ drug_exposure_m30_to_m1 &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</code></pre>
 <p>Meanwhile if we set we set targetStartDate to
 “drug_exposure_start_date” and targetEndDate to
 “drug_exposure_start_date” we will instead be checking whether they had
 a drug exposure record that started during the window.</p>
-<pre class="r"><code>cdm$ankle_sprain |&gt; 
+<pre class="r"><code>cdm$ankle_sprain |&gt;
   addTableIntersectFlag(
     tableName = &quot;drug_exposure&quot;,
     indexDate = &quot;cohort_start_date&quot;,
     window = c(-30, -1)
-  ) |&gt; 
+  ) |&gt;
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v0.10.0 [martics@Windows 10 x64:R 4.2.1/C:\Users\martics\AppData\Local\Temp\RtmpeWnvMH\file6cb05551557d.duckdb]
+#&gt; Database: DuckDB v1.0.0 [root@Darwin 23.4.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpzA2J8b/file751332d13f7c.duckdb]
 #&gt; $ cohort_definition_id    &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
-#&gt; $ subject_id              &lt;int&gt; 3442, 3942, 61, 4409, 2097, 564, 4081, 3885, 5…
-#&gt; $ cohort_start_date       &lt;date&gt; 2011-07-15, 1993-03-02, 1983-12-03, 1983-07-1…
-#&gt; $ cohort_end_date         &lt;date&gt; 2011-08-19, 1993-04-06, 1984-01-07, 1983-08-1…
+#&gt; $ subject_id              &lt;int&gt; 3047, 5022, 1335, 1568, 1992, 2651, 2843, 3820…
+#&gt; $ cohort_start_date       &lt;date&gt; 1989-04-28, 2010-01-23, 1998-05-28, 2017-12-0…
+#&gt; $ cohort_end_date         &lt;date&gt; 1989-05-26, 2010-02-27, 1998-06-18, 2017-12-2…
 #&gt; $ drug_exposure_m30_to_m1 &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</code></pre>
 <p>As before, instead of a flag, we could also add count, date, or days
 variables.</p>
-<pre class="r"><code>cdm$ankle_sprain |&gt; 
+<pre class="r"><code>cdm$ankle_sprain |&gt;
   addTableIntersectCount(
     tableName = &quot;drug_exposure&quot;,
-    indexDate = &quot;cohort_start_date&quot;, 
+    indexDate = &quot;cohort_start_date&quot;,
     window = c(-180, -1)
-  ) |&gt; 
+  ) |&gt;
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v0.10.0 [martics@Windows 10 x64:R 4.2.1/C:\Users\martics\AppData\Local\Temp\RtmpeWnvMH\file6cb05551557d.duckdb]
+#&gt; Database: DuckDB v1.0.0 [root@Darwin 23.4.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpzA2J8b/file751332d13f7c.duckdb]
 #&gt; $ cohort_definition_id     &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id               &lt;int&gt; 3442, 3942, 61, 140, 3000, 3469, 4268, 4409, …
-#&gt; $ cohort_start_date        &lt;date&gt; 2011-07-15, 1993-03-02, 1983-12-03, 1992-03-…
-#&gt; $ cohort_end_date          &lt;date&gt; 2011-08-19, 1993-04-06, 1984-01-07, 1992-04-…
-#&gt; $ drug_exposure_m180_to_m1 &lt;dbl&gt; 2, 1, 1, 2, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 1, …
+#&gt; $ subject_id               &lt;int&gt; 5199, 4222, 3308, 1211, 3330, 408, 3047, 3701…
+#&gt; $ cohort_start_date        &lt;date&gt; 1975-01-20, 1998-07-29, 1977-12-18, 1966-12-…
+#&gt; $ cohort_end_date          &lt;date&gt; 1975-02-17, 1998-08-26, 1978-01-22, 1966-12-…
+#&gt; $ drug_exposure_m180_to_m1 &lt;dbl&gt; 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 2, …
 
-cdm$ankle_sprain |&gt; 
+cdm$ankle_sprain |&gt;
   addTableIntersectDate(
     tableName = &quot;drug_exposure&quot;,
-    indexDate = &quot;cohort_start_date&quot;, 
+    indexDate = &quot;cohort_start_date&quot;,
     order = &quot;last&quot;,
     window = c(-180, -1)
-  ) |&gt; 
+  ) |&gt;
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v0.10.0 [martics@Windows 10 x64:R 4.2.1/C:\Users\martics\AppData\Local\Temp\RtmpeWnvMH\file6cb05551557d.duckdb]
+#&gt; Database: DuckDB v1.0.0 [root@Darwin 23.4.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpzA2J8b/file751332d13f7c.duckdb]
 #&gt; $ cohort_definition_id     &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id               &lt;int&gt; 41, 3442, 140, 1964, 3469, 4268, 1659, 2176, …
-#&gt; $ cohort_start_date        &lt;date&gt; 1990-01-18, 2011-07-15, 1992-03-25, 1966-07-…
-#&gt; $ cohort_end_date          &lt;date&gt; 1990-02-22, 2011-08-19, 1992-04-22, 1966-08-…
-#&gt; $ drug_exposure_m180_to_m1 &lt;date&gt; 1989-09-24, 2011-06-19, 1992-01-16, 1966-01-…
+#&gt; $ subject_id               &lt;int&gt; 5199, 4222, 3308, 4121, 1211, 2846, 3330, 408…
+#&gt; $ cohort_start_date        &lt;date&gt; 1975-01-20, 1998-07-29, 1977-12-18, 1925-11-…
+#&gt; $ cohort_end_date          &lt;date&gt; 1975-02-17, 1998-08-26, 1978-01-22, 1925-12-…
+#&gt; $ drug_exposure_m180_to_m1 &lt;date&gt; 1974-08-21, 1998-05-19, 1977-08-02, 1925-09-…
 
 
-cdm$ankle_sprain |&gt; 
+cdm$ankle_sprain |&gt;
   addTableIntersectDate(
     tableName = &quot;drug_exposure&quot;,
-    indexDate = &quot;cohort_start_date&quot;, 
+    indexDate = &quot;cohort_start_date&quot;,
     order = &quot;last&quot;,
     window = c(-180, -1)
-  ) |&gt; 
+  ) |&gt;
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v0.10.0 [martics@Windows 10 x64:R 4.2.1/C:\Users\martics\AppData\Local\Temp\RtmpeWnvMH\file6cb05551557d.duckdb]
+#&gt; Database: DuckDB v1.0.0 [root@Darwin 23.4.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpzA2J8b/file751332d13f7c.duckdb]
 #&gt; $ cohort_definition_id     &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id               &lt;int&gt; 41, 3442, 140, 1964, 3469, 4268, 1659, 2176, …
-#&gt; $ cohort_start_date        &lt;date&gt; 1990-01-18, 2011-07-15, 1992-03-25, 1966-07-…
-#&gt; $ cohort_end_date          &lt;date&gt; 1990-02-22, 2011-08-19, 1992-04-22, 1966-08-…
-#&gt; $ drug_exposure_m180_to_m1 &lt;date&gt; 1989-09-24, 2011-06-19, 1992-01-16, 1966-01-…</code></pre>
+#&gt; $ subject_id               &lt;int&gt; 5199, 4222, 3308, 4121, 1211, 2846, 3330, 408…
+#&gt; $ cohort_start_date        &lt;date&gt; 1975-01-20, 1998-07-29, 1977-12-18, 1925-11-…
+#&gt; $ cohort_end_date          &lt;date&gt; 1975-02-17, 1998-08-26, 1978-01-22, 1925-12-…
+#&gt; $ drug_exposure_m180_to_m1 &lt;date&gt; 1974-08-21, 1998-05-19, 1977-08-02, 1925-09-…</code></pre>
 <p>In these examples we’ve been adding intersections using the entire
 drug exposure concept table. However, we could have subsetted it before
 adding our table intersection. For example, let’s say we want to add a
@@ -507,58 +509,64 @@ variable for acetaminophen use among our ankle sprain cohort. As we’ve
 seen before we could use a cohort or concept set for this, but now we
 have another option - subset the drug exposure table down to
 acetaminophen records and add a table intersection.</p>
-<pre class="r"><code>acetaminophen_cs &lt;- getDrugIngredientCodes(cdm = cdm, 
-                                  name = c(&quot;acetaminophen&quot;))
+<pre class="r"><code>acetaminophen_cs &lt;- getDrugIngredientCodes(
+  cdm = cdm,
+  name = c(&quot;acetaminophen&quot;)
+)
 
-cdm$acetaminophen_records &lt;- cdm$drug_exposure |&gt; 
-  filter(drug_concept_id %in% !!acetaminophen_cs[[1]]) |&gt; 
+cdm$acetaminophen_records &lt;- cdm$drug_exposure |&gt;
+  filter(drug_concept_id %in% !!acetaminophen_cs[[1]]) |&gt;
   compute()
 
-cdm$ankle_sprain |&gt; 
+cdm$ankle_sprain |&gt;
   addTableIntersectFlag(
     tableName = &quot;acetaminophen_records&quot;,
-    indexDate = &quot;cohort_start_date&quot;, 
+    indexDate = &quot;cohort_start_date&quot;,
     targetStartDate = &quot;drug_exposure_start_date&quot;,
     targetEndDate = &quot;drug_exposure_end_date&quot;,
     window = c(-Inf, Inf)
-  ) |&gt; 
+  ) |&gt;
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v0.10.0 [martics@Windows 10 x64:R 4.2.1/C:\Users\martics\AppData\Local\Temp\RtmpeWnvMH\file6cb05551557d.duckdb]
+#&gt; Database: DuckDB v1.0.0 [root@Darwin 23.4.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpzA2J8b/file751332d13f7c.duckdb]
 #&gt; $ cohort_definition_id              &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id                        &lt;int&gt; 304, 2802, 3401, 3442, 3533, 4432, 4…
-#&gt; $ cohort_start_date                 &lt;date&gt; 1968-10-01, 1951-11-20, 2002-02-21,…
-#&gt; $ cohort_end_date                   &lt;date&gt; 1968-11-05, 1951-12-11, 2002-03-21,…
+#&gt; $ subject_id                        &lt;int&gt; 1117, 1145, 1214, 2210, 2461, 3064, …
+#&gt; $ cohort_start_date                 &lt;date&gt; 1937-11-12, 1961-10-22, 1947-10-08,…
+#&gt; $ cohort_end_date                   &lt;date&gt; 1937-12-03, 1961-11-26, 1947-11-05,…
 #&gt; $ acetaminophen_records_minf_to_inf &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …</code></pre>
 <p>Beyond this table intersection provides a means if implementing a
 wide range of custom analyses. One more example to show this is provided
 below, where we check whether individuals have a measurement or
 procedure record on the date of their ankle sprain.</p>
-<pre class="r"><code>cdm$proc_or_meas &lt;- union_all(cdm$procedure_occurrence |&gt; 
-  select(&quot;person_id&quot;, 
-         &quot;record_date&quot; = &quot;procedure_date&quot;),
-cdm$measurement |&gt; 
-  select(&quot;person_id&quot;, 
-         &quot;record_date&quot; = &quot;measurement_date&quot;)) |&gt; 
+<pre class="r"><code>cdm$proc_or_meas &lt;- union_all(
+  cdm$procedure_occurrence |&gt;
+    select(&quot;person_id&quot;,
+      &quot;record_date&quot; = &quot;procedure_date&quot;
+    ),
+  cdm$measurement |&gt;
+    select(&quot;person_id&quot;,
+      &quot;record_date&quot; = &quot;measurement_date&quot;
+    )
+) |&gt;
   compute()
 
-cdm$ankle_sprain |&gt; 
+cdm$ankle_sprain |&gt;
   addTableIntersectFlag(
     tableName = &quot;proc_or_meas&quot;,
-    indexDate = &quot;cohort_start_date&quot;, 
+    indexDate = &quot;cohort_start_date&quot;,
     targetStartDate = &quot;record_date&quot;,
     targetEndDate = &quot;record_date&quot;,
     window = c(0, 0)
-  ) |&gt; 
+  ) |&gt;
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v0.10.0 [martics@Windows 10 x64:R 4.2.1/C:\Users\martics\AppData\Local\Temp\RtmpeWnvMH\file6cb05551557d.duckdb]
+#&gt; Database: DuckDB v1.0.0 [root@Darwin 23.4.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpzA2J8b/file751332d13f7c.duckdb]
 #&gt; $ cohort_definition_id &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
-#&gt; $ subject_id           &lt;int&gt; 304, 2802, 3401, 3442, 3533, 4432, 4763, 756, 121…
-#&gt; $ cohort_start_date    &lt;date&gt; 1968-10-01, 1951-11-20, 2002-02-21, 2011-07-15, …
-#&gt; $ cohort_end_date      &lt;date&gt; 1968-11-05, 1951-12-11, 2002-03-21, 2011-08-19, …
+#&gt; $ subject_id           &lt;int&gt; 1117, 1145, 1214, 2210, 2461, 3064, 3509, 3668, 4…
+#&gt; $ cohort_start_date    &lt;date&gt; 1937-11-12, 1961-10-22, 1947-10-08, 1958-06-02, …
+#&gt; $ cohort_end_date      &lt;date&gt; 1937-12-03, 1961-11-26, 1947-11-05, 1958-06-23, …
 #&gt; $ proc_or_meas_0_to_0  &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…</code></pre>
 
 

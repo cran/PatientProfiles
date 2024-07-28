@@ -1,4 +1,13 @@
-# PatientProfiles 1.0.0.900 (development version)
+# PatientProfiles 1.1.1
+
+* `addCohortName` overwrites if there already exists a `cohort_name` column 
+  #680 and #682.
+
+* Correct nan and Inf for missing values #674
+
+* Fix #670 #671
+
+# PatientProfiles 1.1.0
 
 * addConceptIntersect now includes records with missing end date under the 
   assumption that end date is equal to start date.

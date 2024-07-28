@@ -103,7 +103,7 @@ test_that("groups and strata", {
           strata_name == "overall" & strata_level == "overall" &
           variable_name == "number subjects"
       ) %>%
-      dplyr::pull("estimate_value")  |>
+      dplyr::pull("estimate_value") |>
       as.numeric() <= 1000
   )
 
@@ -119,16 +119,16 @@ test_that("groups and strata", {
     dplyr::select("strata_name") %>%
     dplyr::distinct() %>%
     dplyr::pull() %in%
-    c("overall", "age_group &&& sex")
-  ))
+    c("overall", "age_group &&& sex")))
   expect_true(all(result %>%
     dplyr::select("strata_level") %>%
     dplyr::distinct() %>%
     dplyr::pull() %in%
-    c("overall", "0 to 30 &&& Female", "0 to 30 &&& Male",
+    c(
+      "overall", "0 to 30 &&& Female", "0 to 30 &&& Male",
       "31 to 60 &&& Female", "31 to 60 &&& Male", "None &&& Female",
-      "None &&& Male")
-  ))
+      "None &&& Male"
+    )))
 
   result <- cdm$condition_occurrence %>%
     addDemographics(
@@ -146,10 +146,11 @@ test_that("groups and strata", {
     dplyr::select("group_level") %>%
     dplyr::distinct() %>%
     dplyr::pull() %in%
-    c("overall", "0 to 30 &&& Female", "0 to 30 &&& Male",
+    c(
+      "overall", "0 to 30 &&& Female", "0 to 30 &&& Male",
       "31 to 60 &&& Female", "31 to 60 &&& Male", "None &&& Female",
-      "None &&& Male")
-  ))
+      "None &&& Male"
+    )))
 
   expect_no_error(
     result <- cdm$condition_occurrence %>%
@@ -201,6 +202,7 @@ test_that("table in db or local", {
 })
 
 test_that("with and with overall groups and strata", {
+  skip_on_cran()
   cdm <- mockPatientProfiles(
     con = connection(), writeSchema = writeSchema(), numberIndividuals = 1000
   )
@@ -246,6 +248,7 @@ test_that("with and with overall groups and strata", {
 })
 
 test_that("obscure", {
+  skip_on_cran()
   x <- dplyr::tibble(
     s = c("g1", "g1", "g2", "g1&&g2", "g2", "g1&&g2"),
     v1 = c(1, 2, 3, 4, 6, 3),
@@ -302,6 +305,7 @@ test_that("obscure", {
 })
 
 test_that("test empty cohort", {
+  skip_on_cran()
   cdm <- mockPatientProfiles(con = connection(), writeSchema = writeSchema())
 
   expect_no_error(
@@ -345,6 +349,7 @@ test_that("test empty cohort", {
 })
 
 test_that("test summary table naming", {
+  skip_on_cran()
   cdm <- mockPatientProfiles(con = connection(), writeSchema = writeSchema())
 
   dat <-
@@ -365,6 +370,7 @@ test_that("test summary table naming", {
 })
 
 test_that("misisng counts", {
+  skip_on_cran()
   cohort <- dplyr::tibble(
     cohort_definition_id = c(1, 1, 1, 2),
     subject_id = c(1, 1, 2, 3),
@@ -439,6 +445,7 @@ test_that("misisng counts", {
 })
 
 test_that("data is ordered", {
+  skip_on_cran()
   cohort <- dplyr::tibble(
     cohort_definition_id = c(1, 1, 1, 2),
     subject_id = c(1, 1, 2, 3),
@@ -521,4 +528,77 @@ test_that("data is ordered", {
   DBI::dbRemoveTable(con, name = name)
 
   DBI::dbDisconnect(conn = con, shutdown = TRUE)
+})
+
+test_that("NA when min, max and mean works", {
+  skip_on_cran()
+  # case estimatrs > variables
+  expect_no_warning(
+    res1 <- dplyr::tibble(group = c("N", "N", "V", "C", "C", "D"), var = c(NA, NA, NA, 1, 1, 1) |> as.integer()) |>
+      PatientProfiles::summariseResult(
+        group = "group",
+        estimates = c("min", "max", "mean", "median", "percentage", "q25")
+      )
+  )
+  expect_equal(
+    res1$estimate_value,
+    c(
+      "2", "1", "2", "1", "100", "100", "100", "100", NA, NA, "1", "1", NA,
+      NA, "1", "1", NA, NA, "1", "1", NA, NA, "1", "1", NA, NA,
+      "100", "100", NA, NA, "1", "1", "0", "0", "2", "1"
+    )
+  )
+
+  expect_no_warning(
+    res2 <- dplyr::tibble(
+      group = c("N", "N", "V", "C", "C", "D"),
+      var1 = c(NA, NA, NA, 1, 1, 1) |> as.integer(),
+      var2 = c(1, 1, 1, NA, NA, NA) |> as.integer()
+    ) |>
+      PatientProfiles::summariseResult(
+        group = "group",
+        estimates = c("min", "max", "mean", "median", "percentage", "q25")
+      )
+  )
+  expect_equal(
+    res2$estimate_value,
+    c(
+      "2", "1", "2", "1", "100", "100", "100", "100", NA, NA, "1", "1", NA,
+      NA, "1", "1", NA, NA, "1", "1", NA, NA, "1", "1", NA, NA, "100",
+      "100", NA, NA, "1", "1", "0", "0", "2", "1", "1", "1", NA, NA, "1", "1",
+      NA, NA, "1", "1", NA, NA, "1", "1", NA, NA, "100", "100", NA,
+      NA, "1", "1", NA, NA, "2", "1", "0", "0"
+    )
+  )
+
+  # case estimatrs <= variables
+  expect_no_warning(
+    res3 <- dplyr::tibble(
+      group = c("N", "N", "V", "C", "C", "D"),
+      var1 = c(NA, NA, NA, 1, 1, 1) |> as.integer(),
+      var2 = c(1, 1, 1, NA, NA, NA) |> as.integer(),
+      var3 = c(NA, NA, NA, 1, 1, 1) |> as.integer()
+    ) |>
+      PatientProfiles::summariseResult(
+        group = "group",
+        estimates = c("min", "max", "mean")
+      )
+  )
+  expect_equal(
+    res3$estimate_value,
+    c(
+      "2", "1", "2", "1", NA, NA, "1", "1", NA, NA, "1", "1", NA, NA,
+      "1", "1", "1", "1", NA, NA, "1", "1", NA, NA, "1", "1", NA, NA,
+      NA, NA, "1", "1", NA, NA, "1", "1", NA, NA, "1", "1"
+    )
+  )
+
+  # no group no strata
+  expect_no_warning(
+    res4 <- dplyr::tibble(var1 = c(NA, NA, NA) |> as.integer()) |>
+      PatientProfiles::summariseResult(
+        estimates = c("min", "max", "mean")
+      )
+  )
+  expect_equal(res4$estimate_value, c("3", NA, NA, NA))
 })

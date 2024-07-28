@@ -40,6 +40,7 @@
   # initial checks
   personVariable <- checkX(x)
   checkmate::assertCharacter(tableName, len = 1, any.missing = FALSE)
+  assertCharacter(tableName)
   checkCdm(cdm, tableName)
   personVariableTable <- checkX(cdm[[tableName]])
   extraValue <- checkValue(value, cdm[[tableName]], tableName)
@@ -103,8 +104,9 @@
       dplyr::all_of(extraValue)
     ) %>%
     dplyr::mutate(end_date = dplyr::if_else(is.na(.data$end_date),
-                                                  .data$start_date,
-                                                  .data$end_date))
+      .data$start_date,
+      .data$end_date
+    ))
 
   result <- x |>
     dplyr::select(
@@ -112,12 +114,17 @@
       "index_date" = dplyr::all_of(indexDate),
       "censor_time" = dplyr::any_of(censorDate)
     ) |>
+    dplyr::distinct() |>
     addDemographics(
       indexDate = "index_date", age = FALSE, sex = FALSE,
       priorObservationName = "start_obs", futureObservationName = "end_obs",
       name = omopgenerics::uniqueTableName(tablePrefix)
     ) %>%
     dplyr::mutate("start_obs" = -.data$start_obs)
+
+
+
+
   if (!is.null(censorDate)) {
     result <- result %>%
       dplyr::mutate(
