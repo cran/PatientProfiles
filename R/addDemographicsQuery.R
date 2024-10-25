@@ -424,7 +424,7 @@ addDateOfBirthQuery <- function(x,
   priorObservation <- validateLogical(priorObservation, call = call)
   futureObservation <- validateLogical(futureObservation, call = call)
   dateOfBirth <- validateLogical(dateOfBirth, call = call)
-  ageGroup <- validateAgeGroup(ageGroup, call = call)
+  ageGroup <- omopgenerics::validateAgeGroupArgument(ageGroup, call = call)
   notIndexDate <- !any(c(
     age, !is.null(ageGroup), priorObservation, futureObservation
   ))
@@ -683,6 +683,7 @@ addInObservationQuery <- function(x,
                                   window = c(0, 0),
                                   completeInterval = FALSE,
                                   nameStyle = "in_observation") {
+
   x |>
     .addInObservationQuery(
       indexDate = indexDate,
@@ -697,12 +698,12 @@ addInObservationQuery <- function(x,
                                    window = c(0, 0),
                                    completeInterval = FALSE,
                                    nameStyle = "in_observation",
+                                   tmpName = NULL,
                                    call = parent.frame()) {
   x <- validateX(x, call = call)
   indexDate <- validateIndexDate(indexDate, null = FALSE, x = x, call = call)
   if (!is.list(window)) window <- list(window)
   window <- omopgenerics::validateWindowArgument(window, call = call)
-  names(window) <- getWindowNames(window)
   assertNameStyle(nameStyle = nameStyle, values = list("window_name" = window), call = call)
   newColumns <- glue::glue(nameStyle, window_name = names(window))
   overwriteCols <- newColumns[newColumns %in% colnames(x)]
@@ -741,6 +742,9 @@ addInObservationQuery <- function(x,
       !!startDif := !!CDMConnector::datediff(indexDate, start),
       !!endDif := !!CDMConnector::datediff(indexDate, end)
     )
+  if(!is.null(tmpName)){
+    xnew <- xnew |> dplyr::compute(name = tmpName, temporary = FALSE)
+  }
 
   qR <- NULL
   for (k in seq_along(window)) {
@@ -780,7 +784,7 @@ addInObservationQuery <- function(x,
         }
       }
     }
-    nQ <- paste0("as.integer(", nQ, ")") |>
+    nQ <- paste0(nQ) |>
       glue::glue() |>
       rlang::parse_exprs() |>
       rlang::set_names(nam)
@@ -793,7 +797,7 @@ addInObservationQuery <- function(x,
       by = c(personVariable, indexDate)
     ) |>
     dplyr::mutate(dplyr::across(
-      dplyr::all_of(newColumns), ~ as.integer(dplyr::if_else(is.na(.x), 0L, .x))
+      dplyr::all_of(newColumns), ~ dplyr::coalesce(as.integer(.x), 0L)
     ))
 
   return(x)

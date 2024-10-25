@@ -32,7 +32,7 @@ test_that("addDemographics, input length, type", {
   expect_error(addDemographics(2))
   expect_error(addDemographics(cdm$cohort1, indexDate = "condition_start_date"))
   expect_error(addDemographics(cdm$cohort1, indexDate = c("cohort_start_date", "cohort_end_date")))
-  expect_error(addDemographics(cdm$cohort1, ageGroup = 10))
+  expect_no_error(addDemographics(cdm$cohort1, ageGroup = 10))
   expect_identical(
     cdm$cohort1 |> dplyr::collect(),
     cdm$cohort1 |>
@@ -1320,10 +1320,16 @@ test_that("query gives same result as main function", {
   # we should get the same results if compute was internal or not
   result_1 <- cdm$cohort1 %>%
     PatientProfiles::addDemographics() %>%
-    dplyr::collect()
+    dplyr::collect()|>
+    dplyr::arrange(cohort_definition_id,
+                   subject_id,
+                   cohort_start_date)
   result_2 <- cdm$cohort1 %>%
     addDemographicsQuery() |>
-    dplyr::collect()
+    dplyr::collect()|>
+    dplyr::arrange(cohort_definition_id,
+                   subject_id,
+                   cohort_start_date)
   expect_equal(result_1, result_2)
 
   # check no tables are created along the way with query
@@ -1351,6 +1357,43 @@ test_that("table names", {
     PatientProfiles::addDemographics(name = "cohort_3"))
   expect_no_error(cdm$cohort_3 <- cdm$cohort1 %>%
     PatientProfiles::addDemographics(name = "cohort_3"))
+
+  mockDisconnect(cdm)
+})
+
+test_that("test query functions", {
+  cdm <- mockPatientProfiles(con = connection(), writeSchema = writeSchema())
+
+  fun1 <- list(
+    addAge,
+    addSex,
+    addDemographics,
+    addDateOfBirth,
+    addInObservation,
+    addPriorObservation,
+    addFutureObservation
+  )
+  fun2 <- list(
+    addAgeQuery,
+    addSexQuery,
+    addDemographicsQuery,
+    addDateOfBirthQuery,
+    addInObservationQuery,
+    addPriorObservationQuery,
+    addFutureObservationQuery
+  )
+
+  for (k in seq_along(fun1)) {
+    x <- do.call(fun1[[k]], list(cdm$cohort1)) |> dplyr::collect() |>
+      dplyr::arrange(cohort_definition_id,
+                     subject_id,
+                     cohort_start_date)
+    y <- do.call(fun2[[k]], list(cdm$cohort1)) |> dplyr::collect() |>
+      dplyr::arrange(cohort_definition_id,
+                     subject_id,
+                     cohort_start_date)
+    expect_identical(x, y)
+  }
 
   mockDisconnect(cdm)
 })
