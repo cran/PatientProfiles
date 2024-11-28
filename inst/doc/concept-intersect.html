@@ -408,30 +408,22 @@ cdm &lt;- generateConceptCohortSet(
   limit = &quot;all&quot;,
   overwrite = TRUE
 )
-#&gt; Warning: ! 3 casted column in ankle_sprain (cohort_attrition) as do not match expected
-#&gt;   column type:
-#&gt; • `reason_id` from numeric to integer
-#&gt; • `excluded_records` from numeric to integer
-#&gt; • `excluded_subjects` from numeric to integer
-#&gt; Warning: ! 1 casted column in ankle_sprain (cohort_codelist) as do not match expected
-#&gt;   column type:
-#&gt; • `concept_id` from numeric to integer
 
 cdm$ankle_sprain
 #&gt; # Source:   table&lt;main.ankle_sprain&gt; [?? x 4]
-#&gt; # Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpREJO98/filedd3e3b0c5924.duckdb]
+#&gt; # Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpCxDATI/file15d005e4d223.duckdb]
 #&gt;    cohort_definition_id subject_id cohort_start_date cohort_end_date
 #&gt;                   &lt;int&gt;      &lt;int&gt; &lt;date&gt;            &lt;date&gt;         
-#&gt;  1                    1        859 1969-01-28        1969-02-25     
-#&gt;  2                    1        865 1993-04-11        1993-04-25     
-#&gt;  3                    1       2588 1987-01-26        1987-02-16     
-#&gt;  4                    1       2666 1971-11-21        1971-12-12     
-#&gt;  5                    1       2760 1961-01-06        1961-02-03     
-#&gt;  6                    1       3320 1978-02-07        1978-02-21     
-#&gt;  7                    1       3420 1975-09-02        1975-09-23     
-#&gt;  8                    1       4677 1966-03-01        1966-03-29     
-#&gt;  9                    1        236 2000-06-16        2000-07-07     
-#&gt; 10                    1        518 1995-10-17        1995-10-31     
+#&gt;  1                    1        742 1975-05-19        1975-06-09     
+#&gt;  2                    1        905 1979-02-26        1979-03-12     
+#&gt;  3                    1        947 1968-07-21        1968-08-04     
+#&gt;  4                    1       1250 1981-03-26        1981-04-30     
+#&gt;  5                    1       1335 1987-12-03        1987-12-17     
+#&gt;  6                    1       1751 1980-09-12        1980-09-26     
+#&gt;  7                    1       2006 2006-06-05        2006-07-03     
+#&gt;  8                    1       2894 1967-07-02        1967-07-30     
+#&gt;  9                    1       3439 1955-09-08        1955-10-06     
+#&gt; 10                    1       4642 1979-02-07        1979-03-14     
 #&gt; # ℹ more rows</code></pre>
 <p>Now let’s say we’re interested in summarising use of acetaminophen
 among our ankle sprain cohort. We can start by identifying the relevant
@@ -452,73 +444,73 @@ four types of functions for concept intersections.</p>
 <p>First, we can add a binary flag variable indicating whether an
 individual had a record of acetaminophen on the day of their ankle
 sprain or up to 30 days afterwards.</p>
-<pre class="r"><code>cdm$ankle_sprain %&gt;%
+<pre class="r"><code>cdm$ankle_sprain |&gt;
   addConceptIntersectFlag(
     conceptSet = acetaminophen_cs,
     indexDate = &quot;cohort_start_date&quot;,
     window = c(0, 30)
-  ) %&gt;%
+  ) |&gt;
   dplyr::glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpREJO98/filedd3e3b0c5924.duckdb]
+#&gt; Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpCxDATI/file15d005e4d223.duckdb]
 #&gt; $ cohort_definition_id        &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id                  &lt;int&gt; 865, 236, 867, 1039, 4366, 669, 2273, 2530…
-#&gt; $ cohort_start_date           &lt;date&gt; 1993-04-11, 2000-06-16, 1981-09-14, 1977-…
-#&gt; $ cohort_end_date             &lt;date&gt; 1993-04-25, 2000-07-07, 1981-09-28, 1977-…
+#&gt; $ subject_id                  &lt;int&gt; 905, 1335, 4642, 4844, 2176, 4412, 140, 19…
+#&gt; $ cohort_start_date           &lt;date&gt; 1979-02-26, 1987-12-03, 1979-02-07, 2011-…
+#&gt; $ cohort_end_date             &lt;date&gt; 1979-03-12, 1987-12-17, 1979-03-14, 2011-…
 #&gt; $ `161_acetaminophen_0_to_30` &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …</code></pre>
 <p>Second, we can count the number of records of acetaminophen in this
 same window for each individual.</p>
-<pre class="r"><code>cdm$ankle_sprain %&gt;%
+<pre class="r"><code>cdm$ankle_sprain |&gt;
   addConceptIntersectCount(
     conceptSet = acetaminophen_cs,
     indexDate = &quot;cohort_start_date&quot;,
     window = c(0, 30)
-  ) %&gt;%
+  ) |&gt;
   dplyr::glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpREJO98/filedd3e3b0c5924.duckdb]
+#&gt; Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpCxDATI/file15d005e4d223.duckdb]
 #&gt; $ cohort_definition_id        &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id                  &lt;int&gt; 865, 236, 867, 1039, 4366, 669, 2273, 2530…
-#&gt; $ cohort_start_date           &lt;date&gt; 1993-04-11, 2000-06-16, 1981-09-14, 1977-…
-#&gt; $ cohort_end_date             &lt;date&gt; 1993-04-25, 2000-07-07, 1981-09-28, 1977-…
+#&gt; $ subject_id                  &lt;int&gt; 905, 1335, 4642, 4844, 2176, 4412, 140, 19…
+#&gt; $ cohort_start_date           &lt;date&gt; 1979-02-26, 1987-12-03, 1979-02-07, 2011-…
+#&gt; $ cohort_end_date             &lt;date&gt; 1979-03-12, 1987-12-17, 1979-03-14, 2011-…
 #&gt; $ `161_acetaminophen_0_to_30` &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …</code></pre>
 <p>Third, we could identify the first start date of acetaminophen in
 this window.</p>
-<pre class="r"><code>cdm$ankle_sprain %&gt;%
+<pre class="r"><code>cdm$ankle_sprain |&gt;
   addConceptIntersectDate(
     conceptSet = acetaminophen_cs,
     indexDate = &quot;cohort_start_date&quot;,
     window = c(0, 30),
     order = &quot;first&quot;
-  ) %&gt;%
+  ) |&gt;
   dplyr::glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpREJO98/filedd3e3b0c5924.duckdb]
+#&gt; Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpCxDATI/file15d005e4d223.duckdb]
 #&gt; $ cohort_definition_id        &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id                  &lt;int&gt; 865, 3320, 236, 867, 1039, 4366, 669, 2273…
-#&gt; $ cohort_start_date           &lt;date&gt; 1993-04-11, 1978-02-07, 2000-06-16, 1981-…
-#&gt; $ cohort_end_date             &lt;date&gt; 1993-04-25, 1978-02-21, 2000-07-07, 1981-…
-#&gt; $ `161_acetaminophen_0_to_30` &lt;date&gt; 1993-04-11, 1978-02-07, 2000-06-16, 1981-…</code></pre>
+#&gt; $ subject_id                  &lt;int&gt; 905, 1335, 4642, 4844, 2176, 4412, 61, 140…
+#&gt; $ cohort_start_date           &lt;date&gt; 1979-02-26, 1987-12-03, 1979-02-07, 2011-…
+#&gt; $ cohort_end_date             &lt;date&gt; 1979-03-12, 1987-12-17, 1979-03-14, 2011-…
+#&gt; $ `161_acetaminophen_0_to_30` &lt;date&gt; 1979-02-26, 1987-12-03, 1979-02-07, 2011-…</code></pre>
 <p>Or fourth, we can get the number of days to the start date of
 acetaminophen in the window.</p>
-<pre class="r"><code>cdm$ankle_sprain %&gt;%
+<pre class="r"><code>cdm$ankle_sprain |&gt;
   addConceptIntersectDays(
     conceptSet = acetaminophen_cs,
     indexDate = &quot;cohort_start_date&quot;,
     window = c(0, 30),
     order = &quot;first&quot;
-  ) %&gt;%
+  ) |&gt;
   dplyr::glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpREJO98/filedd3e3b0c5924.duckdb]
+#&gt; Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpCxDATI/file15d005e4d223.duckdb]
 #&gt; $ cohort_definition_id        &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id                  &lt;int&gt; 865, 3320, 236, 867, 1039, 4366, 669, 2273…
-#&gt; $ cohort_start_date           &lt;date&gt; 1993-04-11, 1978-02-07, 2000-06-16, 1981-…
-#&gt; $ cohort_end_date             &lt;date&gt; 1993-04-25, 1978-02-21, 2000-07-07, 1981-…
+#&gt; $ subject_id                  &lt;int&gt; 905, 1335, 4642, 4844, 2176, 4412, 61, 140…
+#&gt; $ cohort_start_date           &lt;date&gt; 1979-02-26, 1987-12-03, 1979-02-07, 2011-…
+#&gt; $ cohort_end_date             &lt;date&gt; 1979-03-12, 1987-12-17, 1979-03-14, 2011-…
 #&gt; $ `161_acetaminophen_0_to_30` &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …</code></pre>
 </div>
 <div id="adding-multiple-concept-based-variables" class="section level2" number="1.3">
@@ -527,7 +519,7 @@ concept based variables</h2>
 <p>We can add more than one variable at a time when using these
 functions. For example, we might want to add variables for multiple time
 windows.</p>
-<pre class="r"><code>cdm$ankle_sprain %&gt;%
+<pre class="r"><code>cdm$ankle_sprain |&gt;
   addConceptIntersectFlag(
     conceptSet = acetaminophen_cs,
     indexDate = &quot;cohort_start_date&quot;,
@@ -536,18 +528,18 @@ windows.</p>
       c(0, 0),
       c(1, Inf)
     )
-  ) %&gt;%
+  ) |&gt;
   dplyr::glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 7
-#&gt; Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpREJO98/filedd3e3b0c5924.duckdb]
+#&gt; Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpCxDATI/file15d005e4d223.duckdb]
 #&gt; $ cohort_definition_id           &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id                     &lt;int&gt; 865, 2588, 2666, 2760, 236, 518, 615, 8…
-#&gt; $ cohort_start_date              &lt;date&gt; 1993-04-11, 1987-01-26, 1971-11-21, 19…
-#&gt; $ cohort_end_date                &lt;date&gt; 1993-04-25, 1987-02-16, 1971-12-12, 19…
-#&gt; $ `161_acetaminophen_1_to_inf`   &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ `161_acetaminophen_minf_to_m1` &lt;dbl&gt; 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, …
-#&gt; $ `161_acetaminophen_0_to_0`     &lt;dbl&gt; 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, …</code></pre>
+#&gt; $ subject_id                     &lt;int&gt; 905, 947, 1250, 1335, 1751, 2894, 3439,…
+#&gt; $ cohort_start_date              &lt;date&gt; 1979-02-26, 1968-07-21, 1981-03-26, 19…
+#&gt; $ cohort_end_date                &lt;date&gt; 1979-03-12, 1968-08-04, 1981-04-30, 19…
+#&gt; $ `161_acetaminophen_1_to_inf`   &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, …
+#&gt; $ `161_acetaminophen_minf_to_m1` &lt;dbl&gt; 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, …
+#&gt; $ `161_acetaminophen_0_to_0`     &lt;dbl&gt; 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, …</code></pre>
 <p>Or we might want to get variables for multiple drug ingredients of
 interest.</p>
 <pre class="r"><code>meds_cs &lt;- getDrugIngredientCodes(
@@ -563,7 +555,7 @@ interest.</p>
   )
 )
 
-cdm$ankle_sprain %&gt;%
+cdm$ankle_sprain |&gt;
   addConceptIntersectFlag(
     conceptSet = meds_cs,
     indexDate = &quot;cohort_start_date&quot;,
@@ -571,25 +563,25 @@ cdm$ankle_sprain %&gt;%
       c(-Inf, -1),
       c(0, 0)
     )
-  ) %&gt;%
+  ) |&gt;
   dplyr::glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 18
-#&gt; Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpREJO98/filedd3e3b0c5924.duckdb]
+#&gt; Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpCxDATI/file15d005e4d223.duckdb]
 #&gt; $ cohort_definition_id           &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id                     &lt;int&gt; 1941, 3177, 5240, 1598, 2936, 2705, 295…
+#&gt; $ subject_id                     &lt;int&gt; 1941, 3177, 5240, 1598, 2936, 2950, 270…
 #&gt; $ cohort_start_date              &lt;date&gt; 2009-04-28, 1924-12-04, 1976-05-23, 19…
 #&gt; $ cohort_end_date                &lt;date&gt; 2009-05-19, 1924-12-18, 1976-06-20, 19…
-#&gt; $ `7052_morphine_minf_to_m1`     &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
-#&gt; $ `7804_oxycodone_minf_to_m1`    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
 #&gt; $ `5224_heparin_minf_to_m1`      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+#&gt; $ `7804_oxycodone_minf_to_m1`    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
 #&gt; $ `1191_aspirin_minf_to_m1`      &lt;dbl&gt; 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, …
 #&gt; $ `723_amoxicillin_minf_to_m1`   &lt;dbl&gt; 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, …
 #&gt; $ `161_acetaminophen_minf_to_m1` &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, …
-#&gt; $ `11289_warfarin_minf_to_m1`    &lt;dbl&gt; 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, …
+#&gt; $ `11289_warfarin_minf_to_m1`    &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, …
 #&gt; $ `161_acetaminophen_0_to_0`     &lt;dbl&gt; 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, …
-#&gt; $ `1191_aspirin_0_to_0`          &lt;dbl&gt; 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, …
+#&gt; $ `1191_aspirin_0_to_0`          &lt;dbl&gt; 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, …
 #&gt; $ `723_amoxicillin_0_to_0`       &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+#&gt; $ `7052_morphine_minf_to_m1`     &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
 #&gt; $ `11289_warfarin_0_to_0`        &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
 #&gt; $ `5224_heparin_0_to_0`          &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
 #&gt; $ `7052_morphine_0_to_0`         &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
@@ -623,11 +615,6 @@ cdm &lt;- generateConceptCohortSet(
   end = &quot;event_end_date&quot;,
   limit = &quot;all&quot;
 )
-#&gt; Warning: ! 3 casted column in acetaminophen (cohort_attrition) as do not match expected
-#&gt;   column type:
-#&gt; • `reason_id` from numeric to integer
-#&gt; • `excluded_records` from numeric to integer
-#&gt; • `excluded_subjects` from numeric to integer
 
 dplyr::bind_rows(
   cdm$ankle_sprain |&gt;

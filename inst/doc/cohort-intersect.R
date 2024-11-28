@@ -7,16 +7,16 @@ library(ggplot2)
 
 cdm <- mockPatientProfiles(numberIndividuals = 1000)
 
-cdm$cohort1 %>%
+cdm$cohort1 |>
   glimpse()
 settings(cdm$cohort1)
 
-cdm$cohort2 %>%
+cdm$cohort2 |>
   glimpse()
 settings(cdm$cohort2)
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1 %>%
+cdm$cohort1 |>
   addCohortIntersectFlag(
     indexDate = "cohort_start_date",
     targetCohortTable = "cohort2",
@@ -26,7 +26,7 @@ cdm$cohort1 %>%
   ) |>
   glimpse()
 
-cdm$cohort1 %>%
+cdm$cohort1 |>
   addCohortIntersectCount(
     indexDate = "cohort_start_date",
     targetCohortTable = "cohort2",
@@ -37,7 +37,7 @@ cdm$cohort1 %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1 %>%
+cdm$cohort1 |>
   addCohortIntersectDate(
     indexDate = "cohort_start_date",
     targetCohortTable = "cohort2",
@@ -47,7 +47,7 @@ cdm$cohort1 %>%
   ) |>
   glimpse()
 
-cdm$cohort1 %>%
+cdm$cohort1 |>
   addCohortIntersectDays(
     indexDate = "cohort_start_date",
     targetCohortTable = "cohort2",
@@ -103,7 +103,7 @@ cdm <- mockPatientProfiles(
 )
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1 %>%
+cdm$cohort1 |>
   addCohortIntersectFlag(
     targetCohortTable = "cohort2",
     indexDate = "cohort_start_date",
@@ -114,7 +114,7 @@ cdm$cohort1 %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1 %>%
+cdm$cohort1 |>
   addCohortIntersectFlag(
     targetCohortTable = "cohort2",
     indexDate = "cohort_end_date",
@@ -125,7 +125,7 @@ cdm$cohort1 %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1 %>%
+cdm$cohort1 |>
   addCohortIntersectFlag(
     targetCohortTable = "cohort2",
     indexDate = "cohort_start_date",
@@ -136,7 +136,7 @@ cdm$cohort1 %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1 %>%
+cdm$cohort1 |>
   addCohortIntersectCount(
     targetCohortTable = "cohort2",
     indexDate = "cohort_start_date",
@@ -147,7 +147,7 @@ cdm$cohort1 %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1 %>%
+cdm$cohort1 |>
   addCohortIntersectDate(
     targetCohortTable = "cohort2",
     indexDate = "cohort_start_date",
@@ -158,7 +158,7 @@ cdm$cohort1 %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1 %>%
+cdm$cohort1 |>
   addCohortIntersectDate(
     targetCohortTable = "cohort2",
     indexDate = "cohort_start_date",
@@ -169,7 +169,7 @@ cdm$cohort1 %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1 %>%
+cdm$cohort1 |>
   addCohortIntersectDate(
     targetCohortTable = "cohort2",
     indexDate = "cohort_start_date",
@@ -181,7 +181,7 @@ cdm$cohort1 %>%
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-cdm$cohort1 %>%
+cdm$cohort1 |>
   addCohortIntersectDate(
     targetCohortTable = "cohort2",
     indexDate = "cohort_start_date",

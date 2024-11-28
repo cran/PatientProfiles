@@ -42,7 +42,7 @@ cdm <- generateConceptCohortSet(
 
 cdm$ankle_sprain
 
-cdm$ankle_sprain %>%
+cdm$ankle_sprain |>
   addTableIntersectFlag(
     tableName = "condition_occurrence",
     window = c(-30, -1)

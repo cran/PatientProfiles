@@ -34,8 +34,8 @@
 #' \donttest{
 #' cdm <- mockPatientProfiles()
 #'
-#' result <- cdm$cohort1 %>%
-#'   addAge() %>%
+#' result <- cdm$cohort1 |>
+#'   addAge() |>
 #'   addCategories(
 #'     variable = "age",
 #'     categories = list("age_group" = list(
@@ -80,15 +80,15 @@ addCategories <- function(x,
   x <- warnOverwriteColumns(x, nameStyle = nam)
 
   if (
-    utils::head(x, 1) %>%
-      dplyr::pull(dplyr::all_of(variable)) %>%
+    utils::head(x, 1) |>
+      dplyr::pull(dplyr::all_of(variable)) |>
       inherits("Date")
   ) {
-    rand1 <- paste0("extra_", sample(letters, 5, TRUE) %>% paste0(collapse = ""))
-    rand2 <- paste0("extra_", sample(letters, 6, TRUE) %>% paste0(collapse = ""))
-    x <- x %>%
+    rand1 <- paste0("extra_", sample(letters, 5, TRUE) |> paste0(collapse = ""))
+    rand2 <- paste0("extra_", sample(letters, 6, TRUE) |> paste0(collapse = ""))
+    x <- x |>
       dplyr::mutate(!!rand1 := as.Date("1970-01-01")) %>%
-      dplyr::mutate(!!rand2 := !!CDMConnector::datediff(rand1, variable)) %>%
+      dplyr::mutate(!!rand2 := !!CDMConnector::datediff(rand1, variable)) |>
       dplyr::select(-dplyr::all_of(rand1))
     variable <- rand2
     categories <- lapply(categories, function(x) {
@@ -109,7 +109,7 @@ addCategories <- function(x,
       overlap = overlap
     )
     if (date & is.null(names(categories[[k]]))) {
-      categoryTibble[[nam[k]]] <- categoryTibble[[nam[k]]] %>%
+      categoryTibble[[nam[k]]] <- categoryTibble[[nam[k]]] |>
         dplyr::mutate(category_label = paste(
           as.Date(.data$lower_bound, origin = "1970-01-01"), "to",
           as.Date(.data$lower_bound, origin = "1970-01-01")
@@ -163,10 +163,10 @@ addCategories <- function(x,
           is.null(missingCategoryValue), NA, missingCategoryValue
         ), "\""), sqlCategories)
       }
-      sqlCategories <- sqlCategories %>%
-        rlang::parse_exprs() %>%
+      sqlCategories <- sqlCategories |>
+        rlang::parse_exprs() |>
         rlang::set_names(glue::glue(nm))
-      x <- x %>%
+      x <- x |>
         dplyr::mutate(!!!sqlCategories)
     } else {
       x <- dplyr::mutate(x, !!nm := as.character(NA))
@@ -174,7 +174,7 @@ addCategories <- function(x,
         lower <- categoryTibbleK$lower_bound[i]
         upper <- categoryTibbleK$upper_bound[i]
         category <- categoryTibbleK$category_label[i]
-        x <- x %>%
+        x <- x |>
           dplyr::mutate(!!nm := dplyr::if_else(
             is.na(.data[[nm]]) &
               .data[[variable]] >= .env$lower &
@@ -191,7 +191,7 @@ addCategories <- function(x,
       }
       # add missing as category
       if (!is.null(missingCategoryValue) && !is.na(missingCategoryValue)) {
-        x <- x %>%
+        x <- x |>
           dplyr::mutate(!!nm := dplyr::if_else(!is.na(.data[[nm]]),
             .data[[nm]],
             .env$missingCategoryValue
@@ -199,14 +199,14 @@ addCategories <- function(x,
       }
     }
 
-    x <- x %>%
+    x <- x |>
       dplyr::compute(
         name = omopgenerics::uniqueTableName(tablePrefix), temporary = FALSE
       )
   }
 
   if (date) {
-    x <- x %>% dplyr::select(-dplyr::all_of(variable))
+    x <- x |> dplyr::select(-dplyr::all_of(variable))
   }
 
   x <- x |> dplyr::compute(name = comp$name, temporary = comp$temporary)

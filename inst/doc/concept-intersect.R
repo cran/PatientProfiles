@@ -45,45 +45,45 @@ acetaminophen_cs <- getDrugIngredientCodes(
 acetaminophen_cs
 
 ## -----------------------------------------------------------------------------
-cdm$ankle_sprain %>%
+cdm$ankle_sprain |>
   addConceptIntersectFlag(
     conceptSet = acetaminophen_cs,
     indexDate = "cohort_start_date",
     window = c(0, 30)
-  ) %>%
+  ) |>
   dplyr::glimpse()
 
 ## -----------------------------------------------------------------------------
-cdm$ankle_sprain %>%
+cdm$ankle_sprain |>
   addConceptIntersectCount(
     conceptSet = acetaminophen_cs,
     indexDate = "cohort_start_date",
     window = c(0, 30)
-  ) %>%
+  ) |>
   dplyr::glimpse()
 
 ## -----------------------------------------------------------------------------
-cdm$ankle_sprain %>%
+cdm$ankle_sprain |>
   addConceptIntersectDate(
     conceptSet = acetaminophen_cs,
     indexDate = "cohort_start_date",
     window = c(0, 30),
     order = "first"
-  ) %>%
+  ) |>
   dplyr::glimpse()
 
 ## -----------------------------------------------------------------------------
-cdm$ankle_sprain %>%
+cdm$ankle_sprain |>
   addConceptIntersectDays(
     conceptSet = acetaminophen_cs,
     indexDate = "cohort_start_date",
     window = c(0, 30),
     order = "first"
-  ) %>%
+  ) |>
   dplyr::glimpse()
 
 ## -----------------------------------------------------------------------------
-cdm$ankle_sprain %>%
+cdm$ankle_sprain |>
   addConceptIntersectFlag(
     conceptSet = acetaminophen_cs,
     indexDate = "cohort_start_date",
@@ -92,7 +92,7 @@ cdm$ankle_sprain %>%
       c(0, 0),
       c(1, Inf)
     )
-  ) %>%
+  ) |>
   dplyr::glimpse()
 
 ## -----------------------------------------------------------------------------
@@ -109,7 +109,7 @@ meds_cs <- getDrugIngredientCodes(
   )
 )
 
-cdm$ankle_sprain %>%
+cdm$ankle_sprain |>
   addConceptIntersectFlag(
     conceptSet = meds_cs,
     indexDate = "cohort_start_date",
@@ -117,7 +117,7 @@ cdm$ankle_sprain %>%
       c(-Inf, -1),
       c(0, 0)
     )
-  ) %>%
+  ) |>
   dplyr::glimpse()
 
 ## ----fig.width=7--------------------------------------------------------------

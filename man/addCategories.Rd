@@ -39,8 +39,8 @@ Categorize a numeric variable
 \donttest{
 cdm <- mockPatientProfiles()
 
-result <- cdm$cohort1 \%>\%
-  addAge() \%>\%
+result <- cdm$cohort1 |>
+  addAge() |>
   addCategories(
     variable = "age",
     categories = list("age_group" = list(

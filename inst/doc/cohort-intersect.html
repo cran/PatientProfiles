@@ -385,15 +385,15 @@ library(ggplot2)
 
 cdm &lt;- mockPatientProfiles(numberIndividuals = 1000)
 
-cdm$cohort1 %&gt;%
+cdm$cohort1 |&gt;
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 4
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
-## $ cohort_definition_id &lt;int&gt; 1, 1, 3, 2, 1, 1, 2, 3, 1, 3, 3, 3, 1, 1, 3, 1, 2…
-## $ subject_id           &lt;int&gt; 617, 49, 170, 896, 929, 77, 34, 922, 874, 414, 38…
-## $ cohort_start_date    &lt;date&gt; 1985-06-19, 1983-10-07, 1996-05-21, 1968-06-17, …
-## $ cohort_end_date      &lt;date&gt; 1989-01-15, 1985-11-29, 2004-03-24, 1975-07-27, …</code></pre>
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
+## $ cohort_definition_id &lt;int&gt; 1, 3, 1, 2, 3, 2, 2, 2, 2, 2, 1, 1, 3, 1, 2, 2, 2…
+## $ subject_id           &lt;int&gt; 621, 353, 693, 594, 946, 597, 368, 324, 971, 507,…
+## $ cohort_start_date    &lt;date&gt; 1970-10-11, 1988-12-07, 1947-10-06, 1966-03-16, …
+## $ cohort_end_date      &lt;date&gt; 1974-11-15, 1991-04-25, 1957-10-26, 1968-09-11, …</code></pre>
 <pre class="r"><code>settings(cdm$cohort1)</code></pre>
 <pre><code>## # A tibble: 3 × 2
 ##   cohort_definition_id cohort_name
@@ -401,15 +401,15 @@ cdm$cohort1 %&gt;%
 ## 1                    1 cohort_1   
 ## 2                    2 cohort_2   
 ## 3                    3 cohort_3</code></pre>
-<pre class="r"><code>cdm$cohort2 %&gt;%
+<pre class="r"><code>cdm$cohort2 |&gt;
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 4
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
-## $ cohort_definition_id &lt;int&gt; 2, 3, 3, 3, 1, 3, 3, 3, 3, 1, 2, 3, 2, 2, 3, 3, 2…
-## $ subject_id           &lt;int&gt; 391, 911, 880, 715, 581, 532, 490, 284, 968, 714,…
-## $ cohort_start_date    &lt;date&gt; 1956-09-01, 1939-08-02, 1980-10-28, 1932-08-18, …
-## $ cohort_end_date      &lt;date&gt; 1985-12-16, 1949-06-05, 1985-04-05, 1939-10-19, …</code></pre>
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
+## $ cohort_definition_id &lt;int&gt; 1, 3, 1, 3, 1, 3, 1, 3, 1, 2, 1, 1, 3, 1, 3, 1, 2…
+## $ subject_id           &lt;int&gt; 313, 656, 219, 374, 981, 496, 872, 291, 795, 686,…
+## $ cohort_start_date    &lt;date&gt; 1984-01-23, 1919-06-23, 1977-10-04, 1954-01-04, …
+## $ cohort_end_date      &lt;date&gt; 1998-09-07, 1948-12-03, 1980-08-29, 1976-09-24, …</code></pre>
 <pre class="r"><code>settings(cdm$cohort2)</code></pre>
 <pre><code>## # A tibble: 3 × 2
 ##   cohort_definition_id cohort_name
@@ -441,7 +441,7 @@ days before to 180 days after the cohort start date in our table of
 interest. By default the cohort start date of our cohort of interest
 will be used as the index date, with the cohort start to cohort end date
 of the target cohort then used to check for an intersection.</p>
-<pre class="r"><code>cdm$cohort1 %&gt;%
+<pre class="r"><code>cdm$cohort1 |&gt;
   addCohortIntersectFlag(
     indexDate = &quot;cohort_start_date&quot;,
     targetCohortTable = &quot;cohort2&quot;,
@@ -452,15 +452,15 @@ of the target cohort then used to check for an intersection.</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 7
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
-## $ cohort_definition_id &lt;int&gt; 3, 2, 2, 2, 3, 1, 2, 3, 3, 1, 2, 2, 3, 1, 1, 2, 2…
-## $ subject_id           &lt;int&gt; 170, 896, 102, 832, 48, 795, 454, 197, 120, 878, …
-## $ cohort_start_date    &lt;date&gt; 1996-05-21, 1968-06-17, 1997-07-16, 1913-07-20, …
-## $ cohort_end_date      &lt;date&gt; 2004-03-24, 1975-07-27, 1998-08-29, 1932-12-12, …
-## $ cohort_3_m180_to_180 &lt;dbl&gt; 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1…
-## $ cohort_1_m180_to_180 &lt;dbl&gt; 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0…
-## $ cohort_2_m180_to_180 &lt;dbl&gt; 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0…</code></pre>
-<pre class="r"><code>cdm$cohort1 %&gt;%
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
+## $ cohort_definition_id &lt;int&gt; 2, 2, 1, 3, 1, 3, 3, 2, 2, 3, 1, 2, 3, 2, 2, 1, 3…
+## $ subject_id           &lt;int&gt; 588, 605, 830, 183, 961, 96, 784, 776, 358, 46, 6…
+## $ cohort_start_date    &lt;date&gt; 1949-01-13, 1942-10-05, 1949-02-16, 1992-11-26, …
+## $ cohort_end_date      &lt;date&gt; 1954-02-23, 1944-06-26, 1957-02-25, 1992-12-03, …
+## $ cohort_3_m180_to_180 &lt;dbl&gt; 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0…
+## $ cohort_1_m180_to_180 &lt;dbl&gt; 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0…
+## $ cohort_2_m180_to_180 &lt;dbl&gt; 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1…</code></pre>
+<pre class="r"><code>cdm$cohort1 |&gt;
   addCohortIntersectCount(
     indexDate = &quot;cohort_start_date&quot;,
     targetCohortTable = &quot;cohort2&quot;,
@@ -471,20 +471,20 @@ of the target cohort then used to check for an intersection.</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 7
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
-## $ cohort_definition_id &lt;int&gt; 3, 2, 2, 2, 3, 1, 2, 3, 3, 1, 2, 2, 3, 1, 1, 2, 2…
-## $ subject_id           &lt;int&gt; 170, 896, 102, 832, 48, 795, 454, 197, 120, 878, …
-## $ cohort_start_date    &lt;date&gt; 1996-05-21, 1968-06-17, 1997-07-16, 1913-07-20, …
-## $ cohort_end_date      &lt;date&gt; 2004-03-24, 1975-07-27, 1998-08-29, 1932-12-12, …
-## $ cohort_2_m180_to_180 &lt;dbl&gt; 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0…
-## $ cohort_1_m180_to_180 &lt;dbl&gt; 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0…
-## $ cohort_3_m180_to_180 &lt;dbl&gt; 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1…</code></pre>
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
+## $ cohort_definition_id &lt;int&gt; 2, 2, 1, 3, 1, 3, 3, 2, 2, 3, 1, 2, 3, 2, 2, 1, 3…
+## $ subject_id           &lt;int&gt; 588, 605, 830, 183, 961, 96, 784, 776, 358, 46, 6…
+## $ cohort_start_date    &lt;date&gt; 1949-01-13, 1942-10-05, 1949-02-16, 1992-11-26, …
+## $ cohort_end_date      &lt;date&gt; 1954-02-23, 1944-06-26, 1957-02-25, 1992-12-03, …
+## $ cohort_1_m180_to_180 &lt;dbl&gt; 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0…
+## $ cohort_2_m180_to_180 &lt;dbl&gt; 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1…
+## $ cohort_3_m180_to_180 &lt;dbl&gt; 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0…</code></pre>
 <p>Next we can add the date of the intersection and the days to the
 intersection. When identifying these variables we use only one date in
 our target table, which by default will be the cohort start date. In
 addition by default the first intersection that occurs within our window
 will be used.</p>
-<pre class="r"><code>cdm$cohort1 %&gt;%
+<pre class="r"><code>cdm$cohort1 |&gt;
   addCohortIntersectDate(
     indexDate = &quot;cohort_start_date&quot;,
     targetCohortTable = &quot;cohort2&quot;,
@@ -495,15 +495,15 @@ will be used.</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 7
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
-## $ cohort_definition_id &lt;int&gt; 1, 1, 3, 2, 1, 1, 2, 3, 1, 3, 3, 3, 1, 1, 3, 1, 2…
-## $ subject_id           &lt;int&gt; 617, 49, 170, 896, 929, 77, 34, 922, 874, 414, 38…
-## $ cohort_start_date    &lt;date&gt; 1985-06-19, 1983-10-07, 1996-05-21, 1968-06-17, …
-## $ cohort_end_date      &lt;date&gt; 1989-01-15, 1985-11-29, 2004-03-24, 1975-07-27, …
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
+## $ cohort_definition_id &lt;int&gt; 1, 3, 1, 2, 3, 2, 2, 2, 2, 2, 1, 1, 3, 1, 2, 2, 2…
+## $ subject_id           &lt;int&gt; 621, 353, 693, 594, 946, 597, 368, 324, 971, 507,…
+## $ cohort_start_date    &lt;date&gt; 1970-10-11, 1988-12-07, 1947-10-06, 1966-03-16, …
+## $ cohort_end_date      &lt;date&gt; 1974-11-15, 1991-04-25, 1957-10-26, 1968-09-11, …
 ## $ cohort_3_m180_to_180 &lt;date&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
 ## $ cohort_2_m180_to_180 &lt;date&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
 ## $ cohort_1_m180_to_180 &lt;date&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …</code></pre>
-<pre class="r"><code>cdm$cohort1 %&gt;%
+<pre class="r"><code>cdm$cohort1 |&gt;
   addCohortIntersectDays(
     indexDate = &quot;cohort_start_date&quot;,
     targetCohortTable = &quot;cohort2&quot;,
@@ -514,14 +514,14 @@ will be used.</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 7
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
-## $ cohort_definition_id &lt;int&gt; 1, 1, 3, 2, 1, 1, 2, 3, 1, 3, 3, 3, 1, 1, 3, 1, 2…
-## $ subject_id           &lt;int&gt; 617, 49, 170, 896, 929, 77, 34, 922, 874, 414, 38…
-## $ cohort_start_date    &lt;date&gt; 1985-06-19, 1983-10-07, 1996-05-21, 1968-06-17, …
-## $ cohort_end_date      &lt;date&gt; 1989-01-15, 1985-11-29, 2004-03-24, 1975-07-27, …
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
+## $ cohort_definition_id &lt;int&gt; 1, 3, 1, 2, 3, 2, 2, 2, 2, 2, 1, 1, 3, 1, 2, 2, 2…
+## $ subject_id           &lt;int&gt; 621, 353, 693, 594, 946, 597, 368, 324, 971, 507,…
+## $ cohort_start_date    &lt;date&gt; 1970-10-11, 1988-12-07, 1947-10-06, 1966-03-16, …
+## $ cohort_end_date      &lt;date&gt; 1974-11-15, 1991-04-25, 1957-10-26, 1968-09-11, …
 ## $ cohort_3_m180_to_180 &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
-## $ cohort_2_m180_to_180 &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
-## $ cohort_1_m180_to_180 &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…</code></pre>
+## $ cohort_1_m180_to_180 &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
+## $ cohort_2_m180_to_180 &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…</code></pre>
 </div>
 <div id="options-for-identifying-cohort-intersection" class="section level2" number="1.3">
 <h2><span class="header-section-number">1.3</span> Options for
@@ -581,7 +581,7 @@ example.</p>
 common cold with a window of 0 to 0 (ie only the index date) then no
 intersection will be identified as the individual did not have an
 ongoing record for aspirin on that date.</p>
-<pre class="r"><code>cdm$cohort1 %&gt;%
+<pre class="r"><code>cdm$cohort1 |&gt;
   addCohortIntersectFlag(
     targetCohortTable = &quot;cohort2&quot;,
     indexDate = &quot;cohort_start_date&quot;,
@@ -592,7 +592,7 @@ ongoing record for aspirin on that date.</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 5
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
 ## $ cohort_definition_id &lt;int&gt; 1
 ## $ subject_id           &lt;int&gt; 1
 ## $ cohort_start_date    &lt;date&gt; 2020-02-01
@@ -600,7 +600,7 @@ ongoing record for aspirin on that date.</p>
 ## $ cohort_1_0_to_0      &lt;dbl&gt; 0</code></pre>
 <p>We could, however, change the index date to cohort end date in which
 case an intersection would be found.</p>
-<pre class="r"><code>cdm$cohort1 %&gt;%
+<pre class="r"><code>cdm$cohort1 |&gt;
   addCohortIntersectFlag(
     targetCohortTable = &quot;cohort2&quot;,
     indexDate = &quot;cohort_end_date&quot;,
@@ -611,7 +611,7 @@ case an intersection would be found.</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 5
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
 ## $ cohort_definition_id &lt;int&gt; 1
 ## $ subject_id           &lt;int&gt; 1
 ## $ cohort_start_date    &lt;date&gt; 2020-02-01
@@ -620,7 +620,7 @@ case an intersection would be found.</p>
 <p>Or we could also extend the window to include more time before or
 after which in both cases would lead to cohort intersections being
 found.</p>
-<pre class="r"><code>cdm$cohort1 %&gt;%
+<pre class="r"><code>cdm$cohort1 |&gt;
   addCohortIntersectFlag(
     targetCohortTable = &quot;cohort2&quot;,
     indexDate = &quot;cohort_start_date&quot;,
@@ -631,7 +631,7 @@ found.</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 5
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
 ## $ cohort_definition_id &lt;int&gt; 1
 ## $ subject_id           &lt;int&gt; 1
 ## $ cohort_start_date    &lt;date&gt; 2020-02-01
@@ -639,7 +639,7 @@ found.</p>
 ## $ cohort_1_m90_to_90   &lt;dbl&gt; 1</code></pre>
 <p>With a window of 90 days before to 90 days after cohort start, the
 person would have a count of two cohort intersections.</p>
-<pre class="r"><code>cdm$cohort1 %&gt;%
+<pre class="r"><code>cdm$cohort1 |&gt;
   addCohortIntersectCount(
     targetCohortTable = &quot;cohort2&quot;,
     indexDate = &quot;cohort_start_date&quot;,
@@ -650,7 +650,7 @@ person would have a count of two cohort intersections.</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 5
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
 ## $ cohort_definition_id &lt;int&gt; 1
 ## $ subject_id           &lt;int&gt; 1
 ## $ cohort_start_date    &lt;date&gt; 2020-02-01
@@ -658,7 +658,7 @@ person would have a count of two cohort intersections.</p>
 ## $ cohort_1_m90_to_90   &lt;dbl&gt; 2</code></pre>
 <p>With this same window, if we add the first cohort intersect date we
 will get the start date of the first record of aspirin.</p>
-<pre class="r"><code>cdm$cohort1 %&gt;%
+<pre class="r"><code>cdm$cohort1 |&gt;
   addCohortIntersectDate(
     targetCohortTable = &quot;cohort2&quot;,
     indexDate = &quot;cohort_start_date&quot;,
@@ -669,7 +669,7 @@ will get the start date of the first record of aspirin.</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 5
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
 ## $ cohort_definition_id &lt;int&gt; 1
 ## $ subject_id           &lt;int&gt; 1
 ## $ cohort_start_date    &lt;date&gt; 2020-02-01
@@ -677,7 +677,7 @@ will get the start date of the first record of aspirin.</p>
 ## $ cohort_1_m90_to_90   &lt;date&gt; 2020-01-01</code></pre>
 <p>But if we instead set order to last, we get the start date of the
 second record of aspirin.</p>
-<pre class="r"><code>cdm$cohort1 %&gt;%
+<pre class="r"><code>cdm$cohort1 |&gt;
   addCohortIntersectDate(
     targetCohortTable = &quot;cohort2&quot;,
     indexDate = &quot;cohort_start_date&quot;,
@@ -688,7 +688,7 @@ second record of aspirin.</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 5
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
 ## $ cohort_definition_id &lt;int&gt; 1
 ## $ subject_id           &lt;int&gt; 1
 ## $ cohort_start_date    &lt;date&gt; 2020-02-01
@@ -700,7 +700,7 @@ second record of aspirin.</p>
 for new variables</h2>
 <p>One last option relates to the naming convention used to for the new
 variables.</p>
-<pre class="r"><code>cdm$cohort1 %&gt;%
+<pre class="r"><code>cdm$cohort1 |&gt;
   addCohortIntersectDate(
     targetCohortTable = &quot;cohort2&quot;,
     indexDate = &quot;cohort_start_date&quot;,
@@ -712,7 +712,7 @@ variables.</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 5
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
 ## $ cohort_definition_id &lt;int&gt; 1
 ## $ subject_id           &lt;int&gt; 1
 ## $ cohort_start_date    &lt;date&gt; 2020-02-01
@@ -721,7 +721,7 @@ variables.</p>
 <p>We can instead choose a specific name (but this will only work if
 only one new variable will be added, otherwise we will get an error to
 avoid duplicate names).</p>
-<pre class="r"><code>cdm$cohort1 %&gt;%
+<pre class="r"><code>cdm$cohort1 |&gt;
   addCohortIntersectDate(
     targetCohortTable = &quot;cohort2&quot;,
     indexDate = &quot;cohort_start_date&quot;,
@@ -733,7 +733,7 @@ avoid duplicate names).</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 5
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
 ## $ cohort_definition_id &lt;int&gt; 1
 ## $ subject_id           &lt;int&gt; 1
 ## $ cohort_start_date    &lt;date&gt; 2020-02-01
@@ -762,7 +762,7 @@ different types of intersection values.</p>
   glimpse()</code></pre>
 <pre><code>## Rows: ??
 ## Columns: 6
-## Database: DuckDB v1.1.0 [root@Darwin 24.0.0:R 4.4.1/:memory:]
+## Database: DuckDB v1.1.0 [root@Darwin 24.1.0:R 4.4.1/:memory:]
 ## $ cohort_definition_id    &lt;int&gt; 1
 ## $ subject_id              &lt;int&gt; 1
 ## $ cohort_start_date       &lt;date&gt; 2020-02-01
