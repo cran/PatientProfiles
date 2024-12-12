@@ -1,4 +1,8 @@
 
+# PatientProfiles 1.2.3
+
+* Bug fix to correct NA columns when not in observation by @catalamarti
+
 # PatientProfiles 1.2.2
 
 * Update links and codecoverage by @catalamarti

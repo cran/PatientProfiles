@@ -388,11 +388,10 @@
   }
 
   # missing columns
-  newCols <- newCols |>
+  missingCols <- newCols |>
     dplyr::filter(!.data$colnam %in% colnames(x))
-
-  for (val in as.character(unique(newCols$value))) {
-    cols <- newCols$colnam[newCols$value == val]
+  for (val in as.character(unique(missingCols$value))) {
+    cols <- missingCols$colnam[missingCols$value == val]
     valk <- switch(val,
       flag = 0,
       count = 0,
