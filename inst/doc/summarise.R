@@ -30,11 +30,6 @@ PatientProfiles:::formats |>
     locations = gt::cells_body(columns = "Estimate name")
   )
 
-## ----echo = FALSE-------------------------------------------------------------
-folder <- tempdir()
-CDMConnector::downloadEunomiaData(overwrite = TRUE, pathToData = folder)
-Sys.setenv("EUNOMIA_DATA_FOLDER" = folder)
-
 ## -----------------------------------------------------------------------------
 library(duckdb)
 library(CDMConnector)
@@ -42,8 +37,9 @@ library(PatientProfiles)
 library(dplyr)
 library(CodelistGenerator)
 
+requireEunomia()
 cdm <- cdmFromCon(
-  con = dbConnect(duckdb(), eunomia_dir()),
+  con = dbConnect(duckdb(), eunomiaDir()),
   cdmSchema = "main",
   writeSchema = "main"
 )

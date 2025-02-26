@@ -10,12 +10,6 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-## ----eval = TRUE, echo = FALSE------------------------------------------------
-library(CDMConnector)
-if (Sys.getenv("EUNOMIA_DATA_FOLDER") == "") Sys.setenv("EUNOMIA_DATA_FOLDER" = tempdir())
-if (!dir.exists(Sys.getenv("EUNOMIA_DATA_FOLDER"))) dir.create(Sys.getenv("EUNOMIA_DATA_FOLDER"))
-if (!eunomia_is_available()) downloadEunomiaData()
-
 ## ----warning = FALSE, message = FALSE-----------------------------------------
 library(CDMConnector)
 library(CodelistGenerator)
@@ -23,13 +17,11 @@ library(PatientProfiles)
 library(dplyr)
 library(ggplot2)
 
+CDMConnector::requireEunomia()
 con <- DBI::dbConnect(duckdb::duckdb(),
-  dbdir = CDMConnector::eunomia_dir()
+  dbdir = CDMConnector::eunomiaDir()
 )
-cdm <- CDMConnector::cdm_from_con(con,
-  cdm_schem = "main",
-  write_schema = "main"
-)
+cdm <- CDMConnector::cdmFromCon(con, cdmSchema = "main", writeSchema = "main")
 
 cdm <- generateConceptCohortSet(
   cdm = cdm,

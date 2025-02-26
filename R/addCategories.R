@@ -21,8 +21,7 @@
 #' @param categories List of lists of named categories with lower and upper
 #' limit.
 #' @param missingCategoryValue Value to assign to those individuals not in
-#' any named category. If NULL or NA, missing will values will be
-#' given.
+#' any named category. If NULL or NA, missing values will not be changed.
 #' @param overlap TRUE if the categories given overlap.
 #' @param name Name of the new table, if NULL a temporary table is returned.
 #'
@@ -212,7 +211,7 @@ addCategories <- function(x,
   x <- x |> dplyr::compute(name = comp$name, temporary = comp$temporary)
 
   cdm <- omopgenerics::cdmReference(x)
-  omopgenerics::dropTable(cdm = cdm, name = dplyr::starts_with(tablePrefix))
+  omopgenerics::dropSourceTable(cdm = cdm, name = dplyr::starts_with(tablePrefix))
 
   return(x)
 }

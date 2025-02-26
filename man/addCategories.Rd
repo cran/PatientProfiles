@@ -22,8 +22,7 @@ addCategories(
 limit.}
 
 \item{missingCategoryValue}{Value to assign to those individuals not in
-any named category. If NULL or NA, missing will values will be
-given.}
+any named category. If NULL or NA, missing values will not be changed.}
 
 \item{overlap}{TRUE if the categories given overlap.}
 
