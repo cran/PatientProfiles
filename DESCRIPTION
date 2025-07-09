@@ -2,9 +2,9 @@ Package: PatientProfiles
 Type: Package
 Title: Identify Characteristics of Patients in the OMOP Common Data
         Model
-Version: 1.4.1
+Version: 1.4.2
 Authors@R: c(
-    person("Marti", "Catala", , "marti.catalasabate@ndorms.ox.ac.uk", 
+    person("Martí", "Català", , "marti.catalasabate@ndorms.ox.ac.uk", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0003-3308-9905")),
     person("Yuchen", "Guo", , "yuchen.guo@ndorms.ox.ac.uk", role = c("aut"),
     comment = c(ORCID = "0000-0002-0847-4855")),
@@ -21,7 +21,7 @@ Authors@R: c(
     person("Xihang", "Chen", , "xihang.chen@ndorms.ox.ac.uk", role = c("ctb"),
     comment = c(ORCID = "0009-0001-8112-8959"))
     )
-Maintainer: Marti Catala <marti.catalasabate@ndorms.ox.ac.uk>
+Maintainer: Martí Català <marti.catalasabate@ndorms.ox.ac.uk>
 Description: Identify the characteristics of patients in data mapped to the Observational Medical Outcomes Partnership (OMOP) common data model.
 License: Apache License (>= 2)
 Encoding: UTF-8
@@ -40,8 +40,8 @@ Config/testthat/edition: 3
 Config/testthat/parallel: true
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2025-06-27 09:08:08 UTC; martics
-Author: Marti Catala [aut, cre] (ORCID:
+Packaged: 2025-07-09 11:39:10 UTC; martics
+Author: Martí Català [aut, cre] (ORCID:
     <https://orcid.org/0000-0003-3308-9905>),
   Yuchen Guo [aut] (ORCID: <https://orcid.org/0000-0002-0847-4855>),
   Mike Du [aut] (ORCID: <https://orcid.org/0000-0002-9517-8834>),
@@ -52,4 +52,4 @@ Author: Marti Catala [aut, cre] (ORCID:
   Xintong Li [ctb] (ORCID: <https://orcid.org/0000-0002-6872-5804>),
   Xihang Chen [ctb] (ORCID: <https://orcid.org/0009-0001-8112-8959>)
 Repository: CRAN
-Date/Publication: 2025-06-27 10:00:02 UTC
+Date/Publication: 2025-07-09 13:20:05 UTC
