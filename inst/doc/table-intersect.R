@@ -11,27 +11,20 @@ knitr::opts_chunk$set(
 )
 
 ## ----warning = FALSE, message = FALSE-----------------------------------------
-library(CDMConnector)
 library(CodelistGenerator)
 library(PatientProfiles)
 library(dplyr)
+library(CohortConstructor)
 library(ggplot2)
+library(omock)
 
-CDMConnector::requireEunomia()
-con <- DBI::dbConnect(duckdb::duckdb(),
-  dbdir = CDMConnector::eunomiaDir()
-)
-cdm <- CDMConnector::cdmFromCon(con, cdmSchema = "main", writeSchema = "main")
+cdm <- mockCdmFromDataset(datasetName = "GiBleed", source = "duckdb")
 
-cdm <- generateConceptCohortSet(
+cdm$ankle_sprain <- conceptCohort(
   cdm = cdm,
   name = "ankle_sprain",
-  conceptSet = list("ankle_sprain" = 81151),
-  end = "event_end_date",
-  limit = "all",
-  overwrite = TRUE
+  conceptSet = list("ankle_sprain" = 81151)
 )
-
 cdm$ankle_sprain
 
 cdm$ankle_sprain |>
@@ -39,7 +32,7 @@ cdm$ankle_sprain |>
     tableName = "condition_occurrence",
     window = c(-30, -1)
   ) |>
-  tally()
+  glimpse()
 
 ## -----------------------------------------------------------------------------
 cdm$ankle_sprain |>

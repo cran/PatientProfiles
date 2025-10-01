@@ -31,25 +31,22 @@ PatientProfiles:::formats |>
   )
 
 ## -----------------------------------------------------------------------------
-library(duckdb)
-library(CDMConnector)
 library(PatientProfiles)
 library(dplyr)
+library(CohortConstructor)
 library(CodelistGenerator)
+library(omock)
 
-requireEunomia()
-cdm <- cdmFromCon(
-  con = dbConnect(duckdb(), eunomiaDir()),
-  cdmSchema = "main",
-  writeSchema = "main"
-)
-cdm <- generateConceptCohortSet(
+cdm <- mockCdmFromDataset(datasetName = "GiBleed", source = "duckdb")
+
+cdm$my_cohort <- conceptCohort(
   cdm = cdm,
   conceptSet = list("sinusitis" = c(4294548, 4283893, 40481087, 257012)),
-  limit = "first",
   name = "my_cohort"
-)
-cdm <- generateConceptCohortSet(
+) |>
+  requireIsFirstEntry()
+
+cdm$drugs <- conceptCohort(
   cdm = cdm,
   conceptSet = getDrugIngredientCodes(cdm = cdm, name = c("morphine", "aspirin", "oxycodone")),
   name = "drugs"

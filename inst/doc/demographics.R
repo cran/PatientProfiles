@@ -3,7 +3,7 @@ library(PatientProfiles)
 library(duckdb)
 library(dplyr)
 
-cdm <- mockPatientProfiles(numberIndividuals = 10000)
+cdm <- mockPatientProfiles(numberIndividuals = 10000, source = "duckdb")
 
 cdm$person |>
   dplyr::glimpse()

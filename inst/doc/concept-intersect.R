@@ -5,23 +5,19 @@ knitr::opts_chunk$set(
 )
 
 ## -----------------------------------------------------------------------------
-library(CDMConnector)
-library(CodelistGenerator)
 library(PatientProfiles)
+library(CodelistGenerator)
+library(CohortConstructor)
 library(dplyr)
 library(ggplot2)
+library(omock)
 
-CDMConnector::requireEunomia()
-con <- DBI::dbConnect(duckdb::duckdb(), dbdir = CDMConnector::eunomiaDir())
-cdm <- CDMConnector::cdmFromCon(con, cdmSchema = "main", writeSchema = "main")
+cdm <- mockCdmFromDataset(datasetName = "GiBleed", source = "duckdb")
 
-cdm <- generateConceptCohortSet(
+cdm$ankle_sprain <- conceptCohort(
   cdm = cdm,
-  name = "ankle_sprain",
   conceptSet = list("ankle_sprain" = 81151),
-  end = "event_end_date",
-  limit = "all",
-  overwrite = TRUE
+  name = "ankle_sprain"
 )
 
 cdm$ankle_sprain
@@ -41,7 +37,7 @@ cdm$ankle_sprain |>
     indexDate = "cohort_start_date",
     window = c(0, 30)
   ) |>
-  dplyr::glimpse()
+  glimpse()
 
 ## -----------------------------------------------------------------------------
 cdm$ankle_sprain |>
@@ -50,7 +46,7 @@ cdm$ankle_sprain |>
     indexDate = "cohort_start_date",
     window = c(0, 30)
   ) |>
-  dplyr::glimpse()
+  glimpse()
 
 ## -----------------------------------------------------------------------------
 cdm$ankle_sprain |>
@@ -60,7 +56,7 @@ cdm$ankle_sprain |>
     window = c(0, 30),
     order = "first"
   ) |>
-  dplyr::glimpse()
+  glimpse()
 
 ## -----------------------------------------------------------------------------
 cdm$ankle_sprain |>
@@ -70,7 +66,7 @@ cdm$ankle_sprain |>
     window = c(0, 30),
     order = "first"
   ) |>
-  dplyr::glimpse()
+  glimpse()
 
 ## -----------------------------------------------------------------------------
 cdm$ankle_sprain |>
@@ -83,7 +79,7 @@ cdm$ankle_sprain |>
       c(1, Inf)
     )
   ) |>
-  dplyr::glimpse()
+  glimpse()
 
 ## -----------------------------------------------------------------------------
 meds_cs <- getDrugIngredientCodes(
@@ -108,7 +104,7 @@ cdm$ankle_sprain |>
       c(0, 0)
     )
   ) |>
-  dplyr::glimpse()
+  glimpse()
 
 ## ----fig.width=7--------------------------------------------------------------
 acetaminophen_cs <- getDrugIngredientCodes(
@@ -116,35 +112,33 @@ acetaminophen_cs <- getDrugIngredientCodes(
   name = c("acetaminophen")
 )
 
-cdm <- generateConceptCohortSet(
+cdm$acetaminophen <- conceptCohort(
   cdm = cdm,
   name = "acetaminophen",
-  conceptSet = acetaminophen_cs,
-  end = "event_end_date",
-  limit = "all"
+  conceptSet = acetaminophen_cs
 )
 
-dplyr::bind_rows(
+bind_rows(
   cdm$ankle_sprain |>
     addCohortIntersectCount(
       targetCohortTable = "acetaminophen",
       window = c(-Inf, Inf)
     ) |>
-    dplyr::group_by(`161_acetaminophen_minf_to_inf`) |>
-    dplyr::tally() |>
-    dplyr::collect() |>
-    dplyr::arrange(desc(`161_acetaminophen_minf_to_inf`)) |>
-    dplyr::mutate(type = "cohort"),
+    group_by(`161_acetaminophen_minf_to_inf`) |>
+    tally() |>
+    collect() |>
+    arrange(desc(`161_acetaminophen_minf_to_inf`)) |>
+    mutate(type = "cohort"),
   cdm$ankle_sprain |>
     addConceptIntersectCount(
       conceptSet = acetaminophen_cs,
       window = c(-Inf, Inf)
     ) |>
-    dplyr::group_by(`161_acetaminophen_minf_to_inf`) |>
-    dplyr::tally() |>
-    dplyr::collect() |>
-    dplyr::arrange(desc(`161_acetaminophen_minf_to_inf`)) |>
-    dplyr::mutate(type = "concept_set")
+    group_by(`161_acetaminophen_minf_to_inf`) |>
+    tally() |>
+    collect() |>
+    arrange(desc(`161_acetaminophen_minf_to_inf`)) |>
+    mutate(type = "concept_set")
 ) |>
   ggplot() +
   geom_col(aes(`161_acetaminophen_minf_to_inf`, n, fill = type),

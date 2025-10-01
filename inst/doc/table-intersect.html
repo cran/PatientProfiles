@@ -358,42 +358,35 @@ based on cohorts or concept sets. One additional option we have is to
 simply add an intersection based on a table.</p>
 <p>Let’s again create a cohort containing people with an ankle
 sprain.</p>
-<pre class="r"><code>library(CDMConnector)
-library(CodelistGenerator)
+<pre class="r"><code>library(CodelistGenerator)
 library(PatientProfiles)
 library(dplyr)
+library(CohortConstructor)
 library(ggplot2)
+library(omock)
 
-CDMConnector::requireEunomia()
-con &lt;- DBI::dbConnect(duckdb::duckdb(),
-  dbdir = CDMConnector::eunomiaDir()
-)
-cdm &lt;- CDMConnector::cdmFromCon(con, cdmSchema = &quot;main&quot;, writeSchema = &quot;main&quot;)
+cdm &lt;- mockCdmFromDataset(datasetName = &quot;GiBleed&quot;, source = &quot;duckdb&quot;)
 
-cdm &lt;- generateConceptCohortSet(
+cdm$ankle_sprain &lt;- conceptCohort(
   cdm = cdm,
   name = &quot;ankle_sprain&quot;,
-  conceptSet = list(&quot;ankle_sprain&quot; = 81151),
-  end = &quot;event_end_date&quot;,
-  limit = &quot;all&quot;,
-  overwrite = TRUE
+  conceptSet = list(&quot;ankle_sprain&quot; = 81151)
 )
-
 cdm$ankle_sprain
-#&gt; # Source:   table&lt;ankle_sprain&gt; [?? x 4]
-#&gt; # Database: DuckDB v1.3.1 [root@Darwin 24.5.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpShNcsp/fileb2d93eda3c82.duckdb]
+#&gt; # Source:   table&lt;results.test_ankle_sprain&gt; [?? x 4]
+#&gt; # Database: DuckDB 1.4.0 [root@Darwin 24.6.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/Rtmp46ctLr/filee9e37597da0.duckdb]
 #&gt;    cohort_definition_id subject_id cohort_start_date cohort_end_date
 #&gt;                   &lt;int&gt;      &lt;int&gt; &lt;date&gt;            &lt;date&gt;         
-#&gt;  1                    1          7 1985-05-16        1985-06-13     
-#&gt;  2                    1        144 1978-10-30        1978-11-20     
-#&gt;  3                    1       1138 1984-02-09        1984-03-15     
-#&gt;  4                    1       1211 2009-07-19        2009-08-02     
-#&gt;  5                    1       1357 2000-05-19        2000-06-09     
-#&gt;  6                    1       1776 1931-08-23        1931-09-13     
-#&gt;  7                    1       2071 2005-12-13        2006-01-03     
-#&gt;  8                    1       2309 1977-01-08        1977-01-22     
-#&gt;  9                    1       2311 2010-11-03        2010-12-01     
-#&gt; 10                    1       2503 1986-10-10        1986-11-07     
+#&gt;  1                    1       1138 1984-02-09        1984-03-15     
+#&gt;  2                    1       1357 2000-05-19        2000-06-09     
+#&gt;  3                    1       2309 1977-01-08        1977-01-22     
+#&gt;  4                    1        409 2013-02-19        2013-03-19     
+#&gt;  5                    1       3022 2011-11-08        2011-11-22     
+#&gt;  6                    1       4781 1998-10-03        1998-10-31     
+#&gt;  7                    1       4532 1998-08-17        1998-09-07     
+#&gt;  8                    1       1572 1989-07-12        1989-08-09     
+#&gt;  9                    1       3409 2002-11-11        2002-12-09     
+#&gt; 10                    1       2013 1965-07-28        1965-08-25     
 #&gt; # ℹ more rows
 
 cdm$ankle_sprain |&gt;
@@ -401,12 +394,15 @@ cdm$ankle_sprain |&gt;
     tableName = &quot;condition_occurrence&quot;,
     window = c(-30, -1)
   ) |&gt;
-  tally()
-#&gt; # Source:   SQL [?? x 1]
-#&gt; # Database: DuckDB v1.3.1 [root@Darwin 24.5.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpShNcsp/fileb2d93eda3c82.duckdb]
-#&gt;       n
-#&gt;   &lt;dbl&gt;
-#&gt; 1  1915</code></pre>
+  glimpse()
+#&gt; Rows: ??
+#&gt; Columns: 5
+#&gt; Database: DuckDB 1.4.0 [root@Darwin 24.6.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/Rtmp46ctLr/filee9e37597da0.duckdb]
+#&gt; $ cohort_definition_id           &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
+#&gt; $ subject_id                     &lt;int&gt; 4781, 5165, 1486, 1098, 4847, 260, 4348…
+#&gt; $ cohort_start_date              &lt;date&gt; 1998-10-03, 2008-03-21, 1970-08-20, 19…
+#&gt; $ cohort_end_date                &lt;date&gt; 1998-10-31, 2008-04-04, 1970-09-03, 19…
+#&gt; $ condition_occurrence_m30_to_m1 &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …</code></pre>
 <p>We can use table intersection functions to check whether someone had
 a record in the drug exposure table in the 30 days before their ankle
 sprain. If we set targetStartDate to “drug_exposure_start_date” and
@@ -423,11 +419,11 @@ individual had an ongoing drug exposure record in the window.</p>
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v1.3.1 [root@Darwin 24.5.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpShNcsp/fileb2d93eda3c82.duckdb]
+#&gt; Database: DuckDB 1.4.0 [root@Darwin 24.6.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/Rtmp46ctLr/filee9e37597da0.duckdb]
 #&gt; $ cohort_definition_id    &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
-#&gt; $ subject_id              &lt;int&gt; 1992, 2899, 5215, 4523, 1261, 1746, 3929, 1448…
-#&gt; $ cohort_start_date       &lt;date&gt; 1992-10-19, 1967-08-21, 2008-08-06, 1994-07-2…
-#&gt; $ cohort_end_date         &lt;date&gt; 1992-11-23, 1967-09-25, 2008-09-10, 1994-08-2…
+#&gt; $ subject_id              &lt;int&gt; 1992, 404, 5165, 3064, 3869, 61, 4745, 608, 38…
+#&gt; $ cohort_start_date       &lt;date&gt; 1992-10-19, 1983-01-20, 2008-03-21, 1997-01-3…
+#&gt; $ cohort_end_date         &lt;date&gt; 1992-11-23, 1983-02-03, 2008-04-04, 1997-03-0…
 #&gt; $ drug_exposure_m30_to_m1 &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</code></pre>
 <p>Meanwhile if we set we set targetStartDate to
 “drug_exposure_start_date” and targetEndDate to
@@ -442,11 +438,11 @@ a drug exposure record that started during the window.</p>
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v1.3.1 [root@Darwin 24.5.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpShNcsp/fileb2d93eda3c82.duckdb]
+#&gt; Database: DuckDB 1.4.0 [root@Darwin 24.6.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/Rtmp46ctLr/filee9e37597da0.duckdb]
 #&gt; $ cohort_definition_id    &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
-#&gt; $ subject_id              &lt;int&gt; 1992, 2899, 5215, 4523, 1261, 1746, 3929, 1448…
-#&gt; $ cohort_start_date       &lt;date&gt; 1992-10-19, 1967-08-21, 2008-08-06, 1994-07-2…
-#&gt; $ cohort_end_date         &lt;date&gt; 1992-11-23, 1967-09-25, 2008-09-10, 1994-08-2…
+#&gt; $ subject_id              &lt;int&gt; 1992, 404, 5165, 3064, 3869, 61, 4745, 608, 38…
+#&gt; $ cohort_start_date       &lt;date&gt; 1992-10-19, 1983-01-20, 2008-03-21, 1997-01-3…
+#&gt; $ cohort_end_date         &lt;date&gt; 1992-11-23, 1983-02-03, 2008-04-04, 1997-03-0…
 #&gt; $ drug_exposure_m30_to_m1 &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…</code></pre>
 <p>As before, instead of a flag, we could also add count, date, or days
 variables.</p>
@@ -459,12 +455,12 @@ variables.</p>
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v1.3.1 [root@Darwin 24.5.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpShNcsp/fileb2d93eda3c82.duckdb]
+#&gt; Database: DuckDB 1.4.0 [root@Darwin 24.6.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/Rtmp46ctLr/filee9e37597da0.duckdb]
 #&gt; $ cohort_definition_id     &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id               &lt;int&gt; 144, 1138, 1992, 3518, 763, 1761, 2845, 2899,…
-#&gt; $ cohort_start_date        &lt;date&gt; 1978-10-30, 1984-02-09, 1992-10-19, 1968-08-…
-#&gt; $ cohort_end_date          &lt;date&gt; 1978-11-20, 1984-03-15, 1992-11-23, 1968-08-…
-#&gt; $ drug_exposure_m180_to_m1 &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
+#&gt; $ subject_id               &lt;int&gt; 1138, 3409, 1850, 2682, 1992, 2708, 2705, 217…
+#&gt; $ cohort_start_date        &lt;date&gt; 1984-02-09, 2002-11-11, 1957-12-09, 1978-05-…
+#&gt; $ cohort_end_date          &lt;date&gt; 1984-03-15, 2002-12-09, 1957-12-30, 1978-06-…
+#&gt; $ drug_exposure_m180_to_m1 &lt;dbl&gt; 1, 3, 1, 3, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, …
 
 cdm$ankle_sprain |&gt;
   addTableIntersectDate(
@@ -476,12 +472,12 @@ cdm$ankle_sprain |&gt;
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v1.3.1 [root@Darwin 24.5.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpShNcsp/fileb2d93eda3c82.duckdb]
+#&gt; Database: DuckDB 1.4.0 [root@Darwin 24.6.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/Rtmp46ctLr/filee9e37597da0.duckdb]
 #&gt; $ cohort_definition_id     &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id               &lt;int&gt; 144, 1138, 3518, 763, 1761, 2845, 2899, 4160,…
-#&gt; $ cohort_start_date        &lt;date&gt; 1978-10-30, 1984-02-09, 1968-08-03, 1987-06-…
-#&gt; $ cohort_end_date          &lt;date&gt; 1978-11-20, 1984-03-15, 1968-08-17, 1987-07-…
-#&gt; $ drug_exposure_m180_to_m1 &lt;date&gt; 1978-05-26, 1984-01-05, 1968-05-08, 1987-05-…
+#&gt; $ subject_id               &lt;int&gt; 1138, 3409, 1850, 2682, 2708, 2705, 2176, 404…
+#&gt; $ cohort_start_date        &lt;date&gt; 1984-02-09, 2002-11-11, 1957-12-09, 1978-05-…
+#&gt; $ cohort_end_date          &lt;date&gt; 1984-03-15, 2002-12-09, 1957-12-30, 1978-06-…
+#&gt; $ drug_exposure_m180_to_m1 &lt;date&gt; 1984-01-05, 2002-07-08, 1957-08-23, 1978-03-…
 
 
 cdm$ankle_sprain |&gt;
@@ -494,12 +490,12 @@ cdm$ankle_sprain |&gt;
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v1.3.1 [root@Darwin 24.5.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpShNcsp/fileb2d93eda3c82.duckdb]
+#&gt; Database: DuckDB 1.4.0 [root@Darwin 24.6.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/Rtmp46ctLr/filee9e37597da0.duckdb]
 #&gt; $ cohort_definition_id     &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id               &lt;int&gt; 144, 1138, 3518, 763, 1761, 2845, 2899, 4160,…
-#&gt; $ cohort_start_date        &lt;date&gt; 1978-10-30, 1984-02-09, 1968-08-03, 1987-06-…
-#&gt; $ cohort_end_date          &lt;date&gt; 1978-11-20, 1984-03-15, 1968-08-17, 1987-07-…
-#&gt; $ drug_exposure_m180_to_m1 &lt;date&gt; 1978-05-26, 1984-01-05, 1968-05-08, 1987-05-…</code></pre>
+#&gt; $ subject_id               &lt;int&gt; 1138, 3409, 1850, 2682, 2708, 2705, 2176, 404…
+#&gt; $ cohort_start_date        &lt;date&gt; 1984-02-09, 2002-11-11, 1957-12-09, 1978-05-…
+#&gt; $ cohort_end_date          &lt;date&gt; 1984-03-15, 2002-12-09, 1957-12-30, 1978-06-…
+#&gt; $ drug_exposure_m180_to_m1 &lt;date&gt; 1984-01-05, 2002-07-08, 1957-08-23, 1978-03-…</code></pre>
 <p>In these examples we’ve been adding intersections using the entire
 drug exposure concept table. However, we could have subsetted it before
 adding our table intersection. For example, let’s say we want to add a
@@ -527,11 +523,11 @@ cdm$ankle_sprain |&gt;
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v1.3.1 [root@Darwin 24.5.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpShNcsp/fileb2d93eda3c82.duckdb]
+#&gt; Database: DuckDB 1.4.0 [root@Darwin 24.6.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/Rtmp46ctLr/filee9e37597da0.duckdb]
 #&gt; $ cohort_definition_id              &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
-#&gt; $ subject_id                        &lt;int&gt; 7, 144, 1138, 1211, 1357, 1776, 2071…
-#&gt; $ cohort_start_date                 &lt;date&gt; 1985-05-16, 1978-10-30, 1984-02-09,…
-#&gt; $ cohort_end_date                   &lt;date&gt; 1985-06-13, 1978-11-20, 1984-03-15,…
+#&gt; $ subject_id                        &lt;int&gt; 1138, 1357, 2309, 409, 3022, 4781, 4…
+#&gt; $ cohort_start_date                 &lt;date&gt; 1984-02-09, 2000-05-19, 1977-01-08,…
+#&gt; $ cohort_end_date                   &lt;date&gt; 1984-03-15, 2000-06-09, 1977-01-22,…
 #&gt; $ acetaminophen_records_minf_to_inf &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …</code></pre>
 <p>Beyond this table intersection provides a means if implementing a
 wide range of custom analyses. One more example to show this is provided
@@ -560,11 +556,11 @@ cdm$ankle_sprain |&gt;
   glimpse()
 #&gt; Rows: ??
 #&gt; Columns: 5
-#&gt; Database: DuckDB v1.3.1 [root@Darwin 24.5.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/RtmpShNcsp/fileb2d93eda3c82.duckdb]
+#&gt; Database: DuckDB 1.4.0 [root@Darwin 24.6.0:R 4.4.1//private/var/folders/pl/k11lm9710hlgl02nvzx4z9wr0000gp/T/Rtmp46ctLr/filee9e37597da0.duckdb]
 #&gt; $ cohort_definition_id &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
-#&gt; $ subject_id           &lt;int&gt; 7, 144, 1138, 1211, 1357, 1776, 2071, 2309, 2311,…
-#&gt; $ cohort_start_date    &lt;date&gt; 1985-05-16, 1978-10-30, 1984-02-09, 2009-07-19, …
-#&gt; $ cohort_end_date      &lt;date&gt; 1985-06-13, 1978-11-20, 1984-03-15, 2009-08-02, …
+#&gt; $ subject_id           &lt;int&gt; 1138, 1357, 2309, 409, 3022, 4781, 4532, 1572, 34…
+#&gt; $ cohort_start_date    &lt;date&gt; 1984-02-09, 2000-05-19, 1977-01-08, 2013-02-19, …
+#&gt; $ cohort_end_date      &lt;date&gt; 1984-03-15, 2000-06-09, 1977-01-22, 2013-03-19, …
 #&gt; $ proc_or_meas_0_to_0  &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…</code></pre>
 
 

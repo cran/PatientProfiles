@@ -1,11 +1,9 @@
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-library(CDMConnector)
 library(PatientProfiles)
-library(duckdb)
 library(dplyr)
 library(ggplot2)
 
-cdm <- mockPatientProfiles(numberIndividuals = 1000)
+cdm <- mockPatientProfiles(numberIndividuals = 1000, source = "duckdb")
 
 cdm$cohort1 |>
   glimpse()
@@ -58,14 +56,14 @@ cdm$cohort1 |>
   glimpse()
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
-common_cold <- dplyr::tibble(
+common_cold <- tibble(
   cohort_definition_id = 1,
   subject_id = 1,
   cohort_start_date = as.Date("2020-02-01"),
   cohort_end_date = as.Date("2020-02-15")
 )
 
-aspirin <- dplyr::tibble(
+aspirin <- tibble(
   cohort_definition_id = c(1, 1),
   subject_id = c(1, 1),
   cohort_start_date = as.Date(c("2020-01-01", "2020-02-10")),
@@ -99,7 +97,8 @@ bind_rows(
 cdm <- mockPatientProfiles(
   cohort1 = common_cold,
   cohort2 = aspirin,
-  numberIndividuals = 2
+  numberIndividuals = 2,
+  source = "duckdb"
 )
 
 ## ----message= FALSE, warning=FALSE--------------------------------------------
