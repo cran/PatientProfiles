@@ -1,3 +1,15 @@
+# PatientProfiles 1.4.4
+
+* fix edge case for not present domains by @catalamarti in #815
+* additional compute in intersect by @edward-burn in #817
+
+# PatientProfiles 1.4.3
+
+* validate concept set names to be appropiate by @catalamarti in #806
+* explicit message for order by @catalamarti in #807
+* allowDuplicated documentation by @catalamarti in #805
+* Support local datasets by @catalamarti in #810
+* Deprecrate mockDisconnect by @catalamarti in #811
 
 # PatientProfiles 1.4.2
 
