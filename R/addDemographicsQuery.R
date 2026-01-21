@@ -690,7 +690,8 @@ ageGroupQuery <- function(ageName, ageGroup, missingAgeGroupValue) {
 #' @param nameStyle Name of the new columns to create, it must contain
 #' "window_name" if multiple windows are provided.
 #'
-#' @return cohort table with the added binary column assessing inObservation.
+#' @return cohort table with the added numeric column assessing observation (1
+#' in observation, 0 not in observation).
 #' @export
 #'
 #' @examples

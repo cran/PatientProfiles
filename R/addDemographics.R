@@ -334,7 +334,8 @@ addPriorObservation <- function(x,
 #' "window_name" if multiple windows are provided.
 #' @param name Name of the new table, if NULL a temporary table is returned.
 #'
-#' @return cohort table with the added binary column assessing inObservation.
+#' @return cohort table with the added numeric column assessing observation (1
+#' in observation, 0 not in observation).
 #' @export
 #'
 #' @examples
