@@ -13,6 +13,7 @@ addAge(
   ageMissingDay = 1,
   ageImposeMonth = FALSE,
   ageImposeDay = FALSE,
+  ageUnit = "years",
   missingAgeGroupValue = "None",
   name = NULL
 )
@@ -20,23 +21,26 @@ addAge(
 \arguments{
 \item{x}{Table with individuals in the cdm.}
 
-\item{indexDate}{Variable in x that contains the date to compute the age.}
+\item{indexDate}{Variable in x that contains the date to compute the
+demographics characteristics.}
 
-\item{ageName}{Name of the new column that contains age.}
+\item{ageName}{Age variable name.}
 
-\item{ageGroup}{List of age groups to be added.}
+\item{ageGroup}{if not NULL, a list of ageGroup vectors.}
 
 \item{ageMissingMonth}{Month of the year assigned to individuals with missing
-month of birth. By default: 1.}
+month of birth.}
 
-\item{ageMissingDay}{day of the month assigned to individuals with missing
-day of birth. By default: 1.}
+\item{ageMissingDay}{day of the month assigned to individuals
+with missing day of birth.}
 
-\item{ageImposeMonth}{Whether the month of the date of birth will be
-considered as missing for all the individuals.}
+\item{ageImposeMonth}{TRUE or FALSE. Whether the month of the date of birth
+will be considered as missing for all the individuals.}
 
-\item{ageImposeDay}{Whether the day of the date of birth will be considered
-as missing for all the individuals.}
+\item{ageImposeDay}{TRUE or FALSE. Whether the day of the date of birth
+will be considered as missing for all the individuals.}
+
+\item{ageUnit}{Unit for age it can either be 'years', 'months' or 'days'.}
 
 \item{missingAgeGroupValue}{Value to include if missing age.}
 
